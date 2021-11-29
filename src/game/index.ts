@@ -2,27 +2,38 @@ import * as Phaser from "phaser";
 
 import { Dice } from "./dice";
 
+const startXPos = window.innerWidth / 2 - 260;
+const startYPos = 200;
+
 const onScenePreload = (scene: Phaser.Scene) => {
   scene.load.spritesheet("dice", "assets/images/dice2.png", {
     frameWidth: 96,
     frameHeight: 96,
   });
   scene.load.image("background", "assets/images/background2.jpg");
+  scene.load.image('shelf', 'assets/images/shelf.jpeg');
 };
 
 const onSceneCreate = (scene: Phaser.Scene) => {
-  // scene.add.image(0, 0, "background");
-  return [
-    new Dice(scene, 400, 100),
-    new Dice(scene, 500, 100),
-    new Dice(scene, 600, 100),
-    new Dice(scene, 700, 100),
-    new Dice(scene, 800, 100),
-    new Dice(scene, 900, 100),
+  const platforms = scene.physics.add.staticGroup();
+  const pl1 = platforms.create(window.innerWidth / 2 , 1000, 'shelf') as Phaser.GameObjects.Sprite;
+
+  const dices = [
+    new Dice(scene, startXPos, startYPos),
+    new Dice(scene, startXPos + 100, startYPos),
+    new Dice(scene, startXPos + 200, startYPos),
+    new Dice(scene, startXPos + 300, startYPos),
+    new Dice(scene, startXPos + 400, startYPos),
+    new Dice(scene, startXPos + 500, startYPos),
   ];
+
+  dices.forEach(dice => scene.physics.add.collider(dice.sprite, platforms))
+
+  return dices;
 };
 
 export class FarkleGame {
+  scene!: Phaser.Scene;
   dices: Dice[] = [];
 
   start(gameWindowId: string) {
@@ -44,8 +55,8 @@ export class FarkleGame {
           onScenePreload(this);
         },
         create: function () {
-          const dices = onSceneCreate(this);
-          that.dices.push(...dices)
+          that.scene = this;
+          that.dices.push(...onSceneCreate(this))
         },
       },
       transparent: true,
@@ -53,6 +64,10 @@ export class FarkleGame {
   }
 
   throwDices(values: number[]) {
-    this.dices.forEach((dice, i) => dice.throwDice(values[i]));
+    this.dices.forEach((dice, i) => {
+      dice.sprite.setY(startYPos);
+      dice.throwDice(values[i]);
+    });
+    this.scene.physics.world.gravity.y = 900;
   }
 }
