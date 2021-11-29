@@ -7,7 +7,7 @@ export class Dice {
 
     constructor(scene: Phaser.Scene, x: number, y: number) {
         this.sprite = scene.physics.add.sprite(x, y, "dice");
-        this.sprite.setInteractive(new Phaser.Geom.Rectangle(0, 0, 100, 100), Phaser.Geom.Rectangle.Contains);
+        this.sprite.setInteractive(new Phaser.Geom.Rectangle(0, 0, 96, 96), Phaser.Geom.Rectangle.Contains);
 
         this.sprite.on('pointerover', () => {
             this.sprite.alpha = 0.5;
