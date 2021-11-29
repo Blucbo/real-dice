@@ -7,9 +7,11 @@ const onScenePreload = (scene: Phaser.Scene) => {
     frameWidth: 96,
     frameHeight: 96,
   });
+  scene.load.image("background", "assets/images/background2.jpg");
 };
 
 const onSceneCreate = (scene: Phaser.Scene) => {
+  // scene.add.image(0, 0, "background");
   return [
     new Dice(scene, 400, 100),
     new Dice(scene, 500, 100),
@@ -46,6 +48,7 @@ export class FarkleGame {
           that.dices.push(...dices)
         },
       },
+      transparent: true,
     });
   }
 
