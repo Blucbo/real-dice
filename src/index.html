@@ -5,8 +5,8 @@
   <title>RealDice</title>
   <base href="/">
   <script>
-    if (global === undefined) {
-      const global = window;
+    if (!global) {
+      global = window;
     }
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
