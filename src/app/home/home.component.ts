@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { IdentityService } from "../core/services/identity.service";
+import { Observable } from 'rxjs';
+
+import { BlockchainAccount } from '../core/models';
+import { BlockchainService } from "../core/services/blockchain.service";
 
 @Component({
   selector: 'app-home',
@@ -7,14 +10,13 @@ import { IdentityService } from "../core/services/identity.service";
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  public address!: string | null;
-  constructor(private identityService: IdentityService) { }
+  public account$: Observable<BlockchainAccount> = this.blockchainService.account$;
+  constructor(private blockchainService: BlockchainService) { }
 
   ngOnInit(): void {
-    this.identityService.address$.subscribe(v => this.address = v);
   }
 
   async connectToWallet() {
-    await this.identityService.connectToWallet();
+    await this.blockchainService.connectToWallet();
   }
 }
