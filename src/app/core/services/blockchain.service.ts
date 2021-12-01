@@ -3,12 +3,14 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 
+import { BlockchainAccount } from '../models';
+
 // TODO: move to another folder with app configuration
 const SecretNetworkConfig = {
-  chainId: 'holodeck-2',
-  chainName: 'Secret Testnet',
-  rpc: 'http://chainofsecrets.secrettestnet.io:26657',
-  rest: 'https://chainofsecrets.secrettestnet.io',
+  chainId: 'pulsar-1',
+  chainName: 'Secret Testnet Pulsar',
+  rpc: 'https://rpc.pulsar.stakeordie.com',
+  rest: 'https://api.pulsar.stakeordie.com',
   bip44: {
     coinType: 529,
   },
@@ -51,11 +53,14 @@ const SecretNetworkConfig = {
 @Injectable({
   providedIn: 'root'
 })
-export class IdentityService {
+export class BlockchainService {
   private _consmJsClient!: SigningCosmWasmClient;
-  private _address = new BehaviorSubject<string | null>(null);
+  private _account = new BehaviorSubject<BlockchainAccount>({
+    address: "",
+    balance: 0,
+  });
 
-  public readonly address$: Observable<string | null> = this._address.asObservable();
+  public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
 
   async connectToWallet() {
     const currentWindow = window as any;
@@ -87,6 +92,13 @@ export class IdentityService {
         },
       },
     );
-    this._address.next(address);
+
+    const account = await this._consmJsClient.getAccount(address);
+    if (account != null) {
+      this._account.next({
+        address: account.address,
+        balance: +(account.balance.find(b => b.denom === 'uscrt')?.amount || 0),
+      });
+    }
   }
 }

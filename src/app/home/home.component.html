@@ -1,2 +1,3 @@
-<p>Address: {{address}}</p>
+<p>Address: {{(account$ | async)?.address}}</p>
+<p>Balance: {{(account$ | async)?.balance}}</p>
 <button (click)="connectToWallet()">Connect to wallet</button>
