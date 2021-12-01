@@ -6,6 +6,7 @@ import {HomeComponent} from "./home/home.component";
 const routes: Routes = [
   { path: 'game', component: GameComponent },
   { path: 'home', component: HomeComponent },
+  { path: '',   redirectTo: '/home', pathMatch: 'full' },
 ];
 
 @NgModule({
