@@ -1,3 +1,26 @@
-<p>Address: {{(account$ | async)?.address}}</p>
-<p>Balance: {{(account$ | async)?.balance}}</p>
-<button (click)="connectToWallet()">Connect to wallet</button>
+<div class="hero-body">
+  <div class="container has-text-centered">
+    <div class="columns is-vcentered">
+      <div class="column is-5">
+        <p class="title is-4">Address: {{(account$ | async)?.address}}</p>
+        <p class="subtitle is-3">Balance: {{(account$ | async)?.balance}}</p>
+
+        <button class="button is-primary is-rounded" (click)="connectToWallet()">Connect to wallet</button>
+      </div>
+      <div class="column is-6 is-offset-1">
+        <h1 class="title is-2">
+          Superhero Scaffolding
+        </h1>
+        <h2 class="subtitle is-4">
+          Let this cover page describe a product or service.
+        </h2>
+        <br>
+        <p class="has-text-centered">
+          <a class="button is-medium is-info is-outlined">
+            Play
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
