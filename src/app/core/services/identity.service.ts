@@ -52,7 +52,7 @@ const SecretNetworkConfig = {
   providedIn: 'root'
 })
 export class IdentityService {
-  private consmJsClient!: SigningCosmWasmClient;
+  private _consmJsClient!: SigningCosmWasmClient;
   private _address = new BehaviorSubject<string | null>(null);
 
   public readonly address$: Observable<string | null> = this._address.asObservable();
@@ -71,7 +71,7 @@ export class IdentityService {
     const accounts = await keplrOfflineSigner.getAccounts();
     const address = accounts[0].address;
 
-    this.consmJsClient = new SigningCosmWasmClient(
+    this._consmJsClient = new SigningCosmWasmClient(
       SecretNetworkConfig.rest,
       address,
       keplrOfflineSigner,
