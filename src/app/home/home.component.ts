@@ -1,11 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 
-import {BlockchainAccount} from '../core/models';
-import {BlockchainService} from "../core/services/blockchain.service";
-import {AllGamesService} from "../core/services/all-games.service";
-import {Router} from "@angular/router";
-import {AllNftsService} from "../core/services/all-nfts.service";
+import { BlockchainAccount } from '../core/models';
+import { BlockchainService } from "../core/services/blockchain.service";
+import { AllGamesService } from "../core/services/all-games.service";
+import { Router } from "@angular/router";
+import { AllNftsService } from "../core/services/all-nfts.service";
 
 @Component({
   selector: 'app-home',
@@ -40,8 +40,8 @@ export class HomeComponent implements OnInit {
     this.allNfts.refresh();
   }
 
-  async join(id: number) {
-    const res = await this.blockchainService.joinGame(id);
-    this.router.navigateByUrl('/game', { state: { id: id } });
+  async join(gameId: number) {
+    const res = await this.blockchainService.joinGame(gameId);
+    this.router.navigateByUrl('/game', { state: { gameId } });
   }
 }
