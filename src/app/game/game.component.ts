@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 
 import { FarkleGame } from 'src/game';
 
@@ -10,7 +11,11 @@ import { FarkleGame } from 'src/game';
 export class GameComponent implements OnInit {
   game!: FarkleGame;
 
+  constructor(private location: Location) {
+  }
+
   ngOnInit() {
+    console.log(this.location.getState());
     this.game = new FarkleGame();
     this.game.start("gameContainer");
   }

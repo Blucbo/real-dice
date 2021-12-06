@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from "rxjs";
+import {BehaviorSubject, Observable, of} from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
@@ -58,9 +58,10 @@ export class BlockchainService {
   private _consmJsClient!: SigningCosmWasmClient;
   private _account = new BehaviorSubject<BlockchainAccount>({
     address: "",
-    balance: 0,
+    balance: '0',
   });
 
+  isConnected$ = new BehaviorSubject(false);
   public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
 
   async connectToWallet() {
@@ -98,15 +99,16 @@ export class BlockchainService {
     if (account != null) {
       this._account.next({
         address: account.address,
-        balance: +(account.balance.find(b => b.denom === 'uscrt')?.amount || 0),
+        balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
       });
+      this.isConnected$.next(true);
     }
   }
 
-  async getNftTokens(address: string) {
+  async getNftTokens() {
     const nftTokens = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
       "tokens": {
-        "owner": address,
+        "owner": this._account.getValue().address,
       }
     });
     return nftTokens;
@@ -158,9 +160,9 @@ export class BlockchainService {
         "status": status
       },
     });
-    return (gamesResult as any[]).map((el, i) => ({
-      ...el,
-      gameId: i,
+    return (gamesResult as any[]).map(([gameId, value]) => ({
+      game_id: gameId,
+      ...value,
     }));
   }
 
