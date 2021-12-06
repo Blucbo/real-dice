@@ -3,7 +3,12 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  chainId: 'secretdev-1',
+  rpc: 'https://7e7e-77-47-131-150.ngrok.io',
+  rest: 'https://7e7e-77-47-131-150.ngrok.io',
+  daoContractAddress: 'secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg',
+  nftContractAddress: 'secret10pyejy66429refv3g35g2t7am0was7ya6hvrzf',
 };
 
 /*
