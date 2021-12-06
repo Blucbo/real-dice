@@ -2,6 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 
 import { FarkleGame } from 'src/game';
+import { AllGamesService } from '../core/services/all-games.service';
+import { Observable } from 'rxjs';
+import { BlockchainService } from '../core/services/blockchain.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-game',
@@ -10,17 +14,25 @@ import { FarkleGame } from 'src/game';
 })
 export class GameComponent implements OnInit {
   game!: FarkleGame;
+  currentGame$: Observable<any> = this.allGames.currentGame$;
 
-  constructor(private location: Location) {
-  }
+  constructor(
+    private location: Location,
+    private allGames: AllGamesService,
+    private blockchainService: BlockchainService) { }
 
   ngOnInit() {
-    console.log(this.location.getState());
     this.game = new FarkleGame();
     this.game.start("gameContainer");
+    const { gameId } = this.location.getState() as any;
+    if (gameId != null) {
+      this.allGames.loadGame(gameId);
+    }
   }
 
-  throwDices() {
-    this.game.throwDices([1, 2, 3, 4, 5, 6]);
+  async throwDices() {
+    const { gameId } = this.location.getState() as any;
+    const throwDicesResult = await this.blockchainService.rollDices(gameId as number || -1);
+    this.game.throwDices(throwDicesResult);
   }
 }

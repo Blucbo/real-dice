@@ -114,11 +114,9 @@ export class BlockchainService {
     return nftTokens;
   }
 
-  async joinDao(nftId: string = '') {
+  async joinDao() {
     const joinDaoResult = await this._consmJsClient.execute(environment.daoContractAddress, {
-      "join_dao": {
-        "nft_id": nftId,
-      }
+      "join_dao": {}
     });
     return joinDaoResult;
   }
@@ -174,12 +172,16 @@ export class BlockchainService {
     }));
   }
 
-  async getGameById(gameid: number) {
+  async getGameById(gameId: number) {
     const gameResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "game": {
-        "game_id": gameid,
+        "game_id": gameId,
       },
     });
     return gameResult;
+  }
+
+  async rollDices(gameId: number) {
+    return [1, 2, 3, 4, 5, 6];
   }
 }
