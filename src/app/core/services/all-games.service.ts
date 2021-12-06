@@ -1,15 +1,17 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject, combineLatest, from, Observable} from "rxjs";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, combineLatest, from, Observable } from "rxjs";
 
-import {BlockchainService} from "./blockchain.service";
-import {filter, switchMap} from "rxjs/operators";
+import { BlockchainService } from "./blockchain.service";
+import { filter, switchMap } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
 })
 export class AllGamesService {
   emitter$ = new BehaviorSubject<void>(undefined);
-  data$: Observable<any>
+  currentGame$ = new BehaviorSubject<any>(undefined);
+
+  data$: Observable<any>;
 
   constructor(private blockchainService: BlockchainService) {
     this.data$ =
@@ -27,5 +29,10 @@ export class AllGamesService {
 
   refresh() {
     this.emitter$.next(undefined)
+  }
+
+  async loadGame(gameId: number) {
+    const currentGame = await this.blockchainService.getGameById(gameId);
+    this.currentGame$.next(currentGame);
   }
 }
