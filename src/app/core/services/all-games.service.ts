@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, from, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable } from "rxjs";
 
 import { BlockchainService } from "./blockchain.service";
-import { filter, switchMap } from "rxjs/operators";
+import { filter, map, switchMap } from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +22,17 @@ export class AllGamesService {
         .pipe(
           filter(([isConnected, _]) => !!isConnected),
           switchMap(() => {
-            return from(this.blockchainService.getGamesByStatus('pending'));
+            return forkJoin([
+              this.blockchainService.getStreamGamesByStatus('pending'),
+              this.blockchainService.getStreamGamesByStatus('started'),
+              this.blockchainService.getStreamGamesByStatus('re_roll'),
+            ]).pipe(
+              map(([pending, started, reRoll])=> [...pending, ...started, ...reRoll]),
+              map(list => list.map(([gameId, value]) => ({
+                game_id: gameId,
+                ...value,
+              })))
+            );
           }),
         );
   }
