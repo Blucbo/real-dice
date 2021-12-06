@@ -102,4 +102,74 @@ export class BlockchainService {
       });
     }
   }
+
+  async getNftTokens(address: string) {
+    const nftTokens = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+      "tokens": {
+        "owner": address,
+      }
+    });
+    return nftTokens;
+  }
+
+  async joinDao(nftId: string = '') {
+    const joinDaoResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "join_dao": {
+        "nft_id": nftId,
+      }
+    });
+    return joinDaoResult;
+  }
+
+  async createNewGameRoom(nftId: string = '') {
+    const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "create_new_game_room": {
+        "nft_id": nftId,
+        "base_bet": {
+          amount: "50",
+          denom: "uscrt",
+        },
+        "secret": 1,
+      }
+    }, undefined, [{
+      amount: "500",
+      denom: "uscrt",
+    }]);
+    return createNewGameResult;
+  }
+
+  async joinGame(gameId: number, nftId: string = '') {
+    const joinGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "join_game": {
+        "nft_id": nftId,
+        "game_id": gameId,
+        "secret": 1,
+      }
+    }, undefined, [{
+      amount: "500",
+      denom: "uscrt",
+    }]);
+    return joinGameResult;
+  }
+
+  async getGamesByStatus(status: "pending" | "started" | "re_roll") {
+    const gamesResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+      "games_by_status": {
+        "status": status
+      },
+    });
+    return (gamesResult as any[]).map((el, i) => ({
+      ...el,
+      gameId: i,
+    }));
+  }
+
+  async getGameById(gameid: number) {
+    const gameResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+      "game": {
+        "game_id": gameid,
+      },
+    });
+    return gameResult;
+  }
 }
