@@ -18,7 +18,6 @@ export class GameComponent implements OnInit {
 
   constructor(
     private location: Location,
-    private router: Router,
     private allGames: AllGamesService,
     private blockchainService: BlockchainService) { }
 
@@ -33,11 +32,7 @@ export class GameComponent implements OnInit {
 
   async throwDices() {
     const { gameId } = this.location.getState() as any;
-    if (gameId != null) {
-      const throwDicesResult = await this.blockchainService.rollDices(gameId)
-      this.game.throwDices(throwDicesResult);
-    } else {
-      this.router.navigate(['/main']);
-    }
+    const throwDicesResult = await this.blockchainService.rollDices(gameId as number || -1);
+    this.game.throwDices(throwDicesResult);
   }
 }

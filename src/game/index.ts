@@ -3,7 +3,7 @@ import * as Phaser from "phaser";
 import { Dice } from "./dice";
 
 const startXPos = window.innerWidth / 2 - 260;
-const startYPos = 200;
+const startYPos = window.innerHeight / 2 - 50;
 
 const onScenePreload = (scene: Phaser.Scene) => {
   scene.load.spritesheet("dice", "assets/images/dice2.png", {
@@ -16,7 +16,6 @@ const onScenePreload = (scene: Phaser.Scene) => {
 
 const onSceneCreate = (scene: Phaser.Scene) => {
   const platforms = scene.physics.add.staticGroup();
-  const pl1 = platforms.create(window.innerWidth / 2 , 1000, 'shelf') as Phaser.GameObjects.Sprite;
 
   const dices = [
     new Dice(scene, startXPos, startYPos),
@@ -68,6 +67,5 @@ export class FarkleGame {
       dice.sprite.setY(startYPos);
       dice.throwDice(values[i]);
     });
-    this.scene.physics.world.gravity.y = 900;
   }
 }
