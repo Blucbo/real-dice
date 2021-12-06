@@ -2,15 +2,16 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
+import { environment } from 'src/environments/environment';
 
 import { BlockchainAccount } from '../models';
 
 // TODO: move to another folder with app configuration
 const SecretNetworkConfig = {
-  chainId: 'pulsar-1',
-  chainName: 'Secret Testnet Pulsar',
-  rpc: 'https://rpc.pulsar.stakeordie.com',
-  rest: 'https://api.pulsar.stakeordie.com',
+  chainId: environment.chainId,
+  chainName: 'Secret Testnet',
+  rpc: environment.rpc,
+  rest: environment.rest,
   bip44: {
     coinType: 529,
   },
