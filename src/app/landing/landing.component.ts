@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {BlockchainService} from "../core/services/blockchain.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-landing',
@@ -7,9 +9,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class LandingComponent implements OnInit {
 
-  constructor() { }
+  constructor(private blockchainService: BlockchainService, private router: Router) { }
 
   ngOnInit(): void {
+  }
+
+  async connectToWallet() {
+    await this.blockchainService.connectToWallet();
+    this.router.navigate(['/home']);
   }
 
 }
