@@ -17,8 +17,12 @@
             <div class="tabs is-right">
               <ul>
                 <li routerLinkActive="is-active"><a routerLink="/main">Landing</a></li>
-                <li routerLinkActive="is-active"><a routerLink="/game">Game</a></li>
-                <li routerLinkActive="is-active"><a routerLink="/home">Home</a></li>
+                <ng-container
+                  *ngIf="isConnected$ | async"
+                >
+                  <li routerLinkActive="is-active"><a routerLink="/game">Game</a></li>
+                  <li routerLinkActive="is-active"><a routerLink="/home">Home</a></li>
+                </ng-container>
               </ul>
             </div>
           </div>

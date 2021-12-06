@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, Observable, of} from "rxjs";
+import {BehaviorSubject, from, Observable, of} from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
@@ -152,6 +152,14 @@ export class BlockchainService {
       denom: "uscrt",
     }]);
     return joinGameResult;
+  }
+
+  getStreamGamesByStatus(status: "pending" | "started" | "re_roll"): Observable<any[]> {
+    return from(this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+      "games_by_status": {
+        "status": status
+      },
+    }));
   }
 
   async getGamesByStatus(status: "pending" | "started" | "re_roll") {
