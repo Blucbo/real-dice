@@ -1,9 +1,11 @@
 <div class="hero-body">
   <div class="container has-text-centered">
     <div class="columns">
-      <div class="column is-12">
-        <p class="title is-4">Address: {{(account$ | async)?.address}}</p>
-        <p class="subtitle is-3">Balance: {{(account$ | async)?.balance}}</p>
+      <div class="column is-6">
+        <p class="title is-4">{{(account$ | async)?.address}}</p>
+      </div>
+      <div class="column is-6">
+      <p class="title is-4">Balance: {{(account$ | async)?.balance}}</p>
       </div>
     </div>
     <div class="columns is-gapless">
@@ -16,7 +18,7 @@
           <thead>
           <tr>
             <th>Status</th>
-            <th>Game id</th>
+            <th>Id</th>
             <th>Address</th>
             <th>Bet</th>
             <th>Total</th>
@@ -27,11 +29,11 @@
           </thead>
           <tbody>
           <tr *ngFor="let game of games$ | async;">
-            <th>{{game.status}}</th>
-            <td>{{game.game_id}} | copy</td>
+            <th class="upper">{{game.status}}</th>
+            <td>{{game.game_id}}</td>
             <td>{{game.host_player_address}}</td>
-            <td>{{game.base_bet.amount}} {{game.base_bet.denom}}</td>
-            <td>{{game.total_pool.amount}} {{game.total_pool.denom}}</td>
+            <td>{{game.base_bet.amount}}{{game.base_bet.denom}}</td>
+            <td>{{game.total_pool.amount}}{{game.total_pool.denom}}</td>
             <td>
               <button class="button is-primary is -light is-small" (click)="join(game.game_id)">Join</button>
             </td>

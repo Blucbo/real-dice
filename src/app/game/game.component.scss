@@ -33,6 +33,8 @@
   padding-left: 10px;
   padding-right: 10px;
   color: #cdcdcd;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .throws {
@@ -43,6 +45,9 @@
   border: 2px solid #cdcdcd;
   width: 250px;
   height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   &.pl1 {
     left: 10px;
@@ -51,5 +56,12 @@
   &.pl2 {
     right: 10px;
   }
+}
+
+.result-line {
+  color: #cdcdcd;
+  font-size: 20px;
+  font-family: monospace;
+  margin-top: 5px;
 }
 
