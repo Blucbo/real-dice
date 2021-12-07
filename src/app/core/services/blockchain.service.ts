@@ -98,12 +98,9 @@ export class BlockchainService {
 
     const account = await this._consmJsClient.getAccount(address);
     if (account != null) {
-      try {
-        await this.joinDao();
-      } catch (err) { }
       this._account.next({
         address: account.address,
-        balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
+        balance: (+(account.balance.find(b => b.denom === 'uscrt')?.amount || 0) / 1000000).toString(),
       });
       this.isConnected$.next(true);
     }
@@ -125,8 +122,7 @@ export class BlockchainService {
     const nftWithIds = nftIdTokens.map((id: string, i: number) => ({
       ...nftTokenInfos[i],
       id,
-    }))
-
+    }));
     return nftWithIds;
   }
 

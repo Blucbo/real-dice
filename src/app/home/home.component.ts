@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit {
   }
 
   async createNewGame() {
-    const baseBet = +(prompt("Please enter base bet", "50") || "50");
+    const baseBet = +(prompt("Please enter base bet", "1") || "1");
     await this.blockchainService.createNewGameRoom(this.chosenNft.value, baseBet !== NaN ? baseBet : 50);
   }
 
@@ -62,5 +62,9 @@ export class HomeComponent implements OnInit {
       await this.blockchainService.joinGame(gameId, this.chosenNft.value || '', bet);
     }
     this.router.navigateByUrl('/game', { state: { gameId } });
+  }
+
+  async joinDao() {
+    await this.blockchainService.joinDao();
   }
 }
