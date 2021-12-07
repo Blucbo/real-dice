@@ -34,3 +34,35 @@ export interface GamePool {
   host_player_pool: BaseBet;
   joined_player_pool: BaseBet;
 }
+
+export interface NftWithID {
+  nft_info: NftInfo;
+  id:       string;
+}
+
+export interface NftInfo {
+  token_uri: null;
+  extension: Extension;
+}
+
+export interface Extension {
+  image:                null;
+  image_data:           null;
+  external_url:         null;
+  description:          string;
+  xp:                   number;
+  name:                 string;
+  attributes:           Attribute[];
+  background_color:     string;
+  animation_url:        null;
+  youtube_url:          null;
+  media:                null;
+  protected_attributes: null;
+}
+
+export interface Attribute {
+  display_type: null;
+  trait_type:   null;
+  value:        string;
+  max_value:    null;
+}

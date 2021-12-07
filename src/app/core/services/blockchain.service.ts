@@ -1,10 +1,11 @@
+import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, from, Observable, of, Subject } from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
 
-import { BlockchainAccount, Game, GameStatus } from '../models';
+import { BlockchainAccount, Game, GameStatus, NftInfo, NftWithID } from '../models';
 
 // TODO: move to another folder with app configuration
 const SecretNetworkConfig = {
@@ -109,19 +110,25 @@ export class BlockchainService {
     }
   }
 
-  async getNftTokens() {
-    const nftTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+  async getNftTokens(): Promise<NftWithID[]> {
+    const nftIdTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "player_nfts": {
         "player": this._account.getValue().address,
         "viewer": environment.daoContractAddress,
       }
     });
-    const nftTokenInfos = await Promise.all(nftTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+
+    const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
       "nft_info": {
         "token_id": id,
       }
     })));
-    return nftTokenInfos;
+    const nftWithIds = nftIdTokens.map((id: string, i:number) => ({
+      ...nftTokenInfos[i],
+      id,
+    }))
+
+    return nftWithIds;
   }
 
   async joinDao() {
@@ -189,6 +196,7 @@ export class BlockchainService {
         "game_id": gameId,
       }
     });
+
     return rolledResult as any as number[];
   }
 }

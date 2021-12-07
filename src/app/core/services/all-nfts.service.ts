@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, from, Observable } from "rxjs";
 import { filter, switchMap } from 'rxjs/operators';
+import { NftWithID } from '../models';
 import { BlockchainService } from "./blockchain.service";
 
 @Injectable({
@@ -8,7 +9,7 @@ import { BlockchainService } from "./blockchain.service";
 })
 export class AllNftsService {
   emitter$ = new BehaviorSubject<void>(undefined);
-  data$: Observable<any>
+  data$: Observable<NftWithID[]>
 
   constructor(private blockchainService: BlockchainService) {
     this.data$ = combineLatest([
