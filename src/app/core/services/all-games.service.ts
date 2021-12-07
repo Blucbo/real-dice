@@ -55,7 +55,7 @@ export class AllGamesService {
   }
 
   async roll(gameId: number) {
-    const result = this.blockchainService.rollDices(gameId);
+    const result = await this.blockchainService.rollDices(gameId);
     // todo: update status game lo
     return result;
   }
