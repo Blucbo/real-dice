@@ -1,6 +1,7 @@
 <div id="gameContainer" class="background-home">
   <button *ngIf="canThrow$ | async" class="button" (click)="throwDices()">Throw dices</button>
   <button *ngIf="!(canThrow$ | async)" class="button">Wait</button>
+  <button class="button refresh" (click)="refresh()">Refresh</button>
 
   <div class="throws pl1">
     <div class="score pl1">Host: {{(currentGame$ | async)?.host_player_total_points || 0}} points</div>

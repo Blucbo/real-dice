@@ -24,6 +24,8 @@ export class GameComponent implements OnInit {
     6: "la-dice-six",
   }
 
+  private gameId: any;
+
   constructor(
     private location: Location,
     private allGames: AllGamesService,
@@ -33,9 +35,14 @@ export class GameComponent implements OnInit {
     this.game = new FarkleGame();
     this.game.start("gameContainer");
     const { gameId } = this.location.getState() as any;
+    this.gameId = gameId;
     if (gameId != null) {
-      this.allGames.loadGame(gameId);
+      this.refresh()
     }
+  }
+
+  refresh() {
+    this.allGames.loadGame(this.gameId)
   }
 
   async throwDices() {
