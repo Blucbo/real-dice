@@ -40,7 +40,8 @@ export class GameComponent implements OnInit {
 
   async throwDices() {
     const { gameId } = this.location.getState() as any;
-    const throwDicesResult = await this.gamesService.roll(gameId as number);
-    this.game.throwDices(throwDicesResult);
+    const rollResult = await this.gamesService.roll(gameId as number);
+    this.game.throwDices(rollResult);
+
   }
 }
