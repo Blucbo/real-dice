@@ -99,7 +99,7 @@ export class BlockchainService {
     const account = await this._consmJsClient.getAccount(address);
     if (account != null) {
       try {
-        // await this.joinDao();
+        await this.joinDao();
       } catch (err) { }
       this._account.next({
         address: account.address,
@@ -110,17 +110,13 @@ export class BlockchainService {
   }
 
   async getNftTokens() {
-    // const nftTokens = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
-    //   "tokens": {
-    //     "owner": this._account.getValue().address,
-    //   }
-    // });
-    const nftTokens = {
-      "token_list": {
-        "tokens": ["0", "1", "2"],
+    const nftTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+      "player_nfts": {
+        "player": this._account.getValue().address,
+        "viewer": environment.daoContractAddress,
       }
-    }
-    const nftTokenInfos = await Promise.all(nftTokens.token_list.tokens.map(id => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+    });
+    const nftTokenInfos = await Promise.all(nftTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
       "nft_info": {
         "token_id": id,
       }
@@ -143,7 +139,7 @@ export class BlockchainService {
           amount: baseBet.toString(),
           denom: "uscrt",
         },
-        "secret":  Math.floor(Math.random() * 10000),
+        "secret": Math.floor(Math.random() * 10000),
       }
     }, undefined, [{
       amount: (baseBet * 10).toString(),
