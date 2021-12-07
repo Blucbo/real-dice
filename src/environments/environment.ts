@@ -4,11 +4,11 @@
 
 export const environment = {
   production: false,
-  chainId: 'secretdev-1',
-  rpc: 'https://hungry-fox-24.loca.lt',
-  rest: 'https://hungry-fox-24.loca.lt',
-  daoContractAddress: 'secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg',
-  nftContractAddress: 'secret10pyejy66429refv3g35g2t7am0was7ya6hvrzf',
+  chainId: 'pulsar-1',
+  rpc: 'https://rpc.pulsar.stakeordie.com',
+  rest: 'https://api.pulsar.stakeordie.com',
+  daoContractAddress: 'secret1j0meauyq3g73nqhxkt228j7uypxdtled59tym0',
+  nftContractAddress: 'secret1lx2w3z9ty420nv0pd24nlzeg6fthdv3wdtlrpk',
 };
 
 /*

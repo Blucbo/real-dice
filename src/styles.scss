@@ -6,3 +6,9 @@
 .background-home {
   background-image: url("~assets/images/background.jpg");
 }
+
+.dice-svg {
+  height: 150px;
+  width: 150px;
+  mask: url("~assets/images/dice.svg") no-repeat center / contain;
+}
