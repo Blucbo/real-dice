@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from, Observable, of } from "rxjs";
+import { BehaviorSubject, from, Observable, of, Subject } from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
 
-import { BlockchainAccount, GameStatus } from '../models';
+import { BlockchainAccount, Game, GameStatus } from '../models';
 
 // TODO: move to another folder with app configuration
 const SecretNetworkConfig = {
@@ -63,6 +63,7 @@ export class BlockchainService {
 
   isConnected$ = new BehaviorSubject(false);
   public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
+
 
   async connectToWallet() {
     const currentWindow = window as any;
@@ -143,7 +144,7 @@ export class BlockchainService {
           amount: "50",
           denom: "uscrt",
         },
-        "secret": 1,
+        "secret":  Math.floor(Math.random() * 10000),
       }
     }, undefined, [{
       amount: "500",
@@ -157,21 +158,13 @@ export class BlockchainService {
       "join_game": {
         "nft_id": nftId,
         "game_id": gameId,
-        "secret": 1,
+        "secret": Math.floor(Math.random() * 10000),
       }
     }, undefined, [{
       amount: "500",
       denom: "uscrt",
     }]);
     return joinGameResult;
-  }
-
-  getStreamGamesByStatus(status: GameStatus): Observable<any[]> {
-    return from(this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
-      "games_by_status": {
-        "status": status
-      },
-    }));
   }
 
   async getGamesByStatus(status: GameStatus) {
@@ -192,10 +185,15 @@ export class BlockchainService {
         "game_id": gameId,
       },
     });
-    return gameResult;
+    return gameResult as Game;
   }
 
   async rollDices(gameId: number) {
-    return [1, 2, 3, 4, 5, 6];
+    const rolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "roll": {
+        "game_id": gameId,
+      }
+    });
+    return rolledResult as any as number[];
   }
 }

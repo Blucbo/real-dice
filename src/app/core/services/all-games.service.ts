@@ -1,15 +1,25 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, forkJoin, from, Observable } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable, Subject } from "rxjs";
 
 import { BlockchainService } from "./blockchain.service";
-import { filter, map, switchMap } from "rxjs/operators";
+import { filter, map, switchMap, withLatestFrom } from "rxjs/operators";
+import { Game } from '../models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AllGamesService {
-  emitter$ = new BehaviorSubject<void>(undefined);
-  currentGame$ = new BehaviorSubject<any>(undefined);
+  public readonly emitter$ = new BehaviorSubject<void>(undefined);
+  public readonly currentGame$ = new Subject<Game>();
+  public readonly myTurn$ = this.currentGame$.pipe(
+    withLatestFrom(this.blockchainService.account$),
+    map(([game, acc]) => {
+      return (
+        game.roll_turn === 'host' && game.host_player_address === acc.address
+        || game.roll_turn === 'joined' && game.joined_player_address === acc.address
+      );
+    })
+  )
 
   data$: Observable<any>;
 
@@ -23,18 +33,16 @@ export class AllGamesService {
           filter(([isConnected, _]) => !!isConnected),
           switchMap(() => {
             return forkJoin([
-              this.blockchainService.getStreamGamesByStatus('pending'),
-              this.blockchainService.getStreamGamesByStatus('started'),
-              this.blockchainService.getStreamGamesByStatus('re_roll'),
+              from(this.blockchainService.getGamesByStatus('pending')),
+              from(this.blockchainService.getGamesByStatus('started')),
+              from(this.blockchainService.getGamesByStatus('re_roll')),
             ]).pipe(
               map(([pending, started, reRoll])=> [...pending, ...started, ...reRoll]),
-              map(list => list.map(([gameId, value]) => ({
-                game_id: gameId,
-                ...value,
-              })))
             );
           }),
         );
+
+        this.data$.subscribe(v => console.log('games: here ', v));
   }
 
   refresh() {
@@ -44,5 +52,11 @@ export class AllGamesService {
   async loadGame(gameId: number) {
     const currentGame = await this.blockchainService.getGameById(gameId);
     this.currentGame$.next(currentGame);
+  }
+
+  async roll(gameId: number) {
+    const result = this.blockchainService.rollDices(gameId);
+    // todo: update status game lo
+    return result;
   }
 }
