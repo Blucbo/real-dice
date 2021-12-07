@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { BlockchainAccount } from '../core/models';
+import { BlockchainAccount, GameStatus } from '../core/models';
 import { BlockchainService } from "../core/services/blockchain.service";
 import { AllGamesService } from "../core/services/all-games.service";
 import { Router } from "@angular/router";
@@ -16,7 +16,6 @@ export class HomeComponent implements OnInit {
   public account$: Observable<BlockchainAccount> = this.blockchainService.account$;
   public games$: Observable<any[]> = this.allGames.data$;
   public nfts$: Observable<any[]> = this.allNfts.data$;
-
 
   constructor(
     private blockchainService: BlockchainService,
@@ -40,8 +39,14 @@ export class HomeComponent implements OnInit {
     this.allNfts.refresh();
   }
 
-  async join(gameId: number) {
-    const res = await this.blockchainService.joinGame(gameId);
+  async createNewGame() {
+    await this.blockchainService.createNewGameRoom('0');
+  }
+
+  async join(gameId: number, gameStatus: GameStatus) {
+    if (gameStatus === 'pending') {
+      await this.blockchainService.joinGame(gameId, '0');
+    }
     this.router.navigateByUrl('/game', { state: { gameId } });
   }
 }

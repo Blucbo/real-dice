@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, from, Observable, of} from "rxjs";
+import { BehaviorSubject, from, Observable, of } from "rxjs";
 import { SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
 
-import { BlockchainAccount } from '../models';
+import { BlockchainAccount, GameStatus } from '../models';
 
 // TODO: move to another folder with app configuration
 const SecretNetworkConfig = {
@@ -97,21 +97,35 @@ export class BlockchainService {
 
     const account = await this._consmJsClient.getAccount(address);
     if (account != null) {
-      this._account.next({
-        address: account.address,
-        balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
-      });
-      this.isConnected$.next(true);
+      try {
+        await this.joinDao();
+      } catch(err) {
+        this._account.next({
+          address: account.address,
+          balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
+        });
+        this.isConnected$.next(true);
+      }
     }
   }
 
   async getNftTokens() {
-    const nftTokens = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
-      "tokens": {
-        "owner": this._account.getValue().address,
+    // const nftTokens = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+    //   "tokens": {
+    //     "owner": this._account.getValue().address,
+    //   }
+    // });
+    const nftTokens = {
+      "token_list": {
+        "tokens": ["0", "1", "2"],
       }
-    });
-    return nftTokens;
+    }
+    const nftTokenInfos = await Promise.all(nftTokens.token_list.tokens.map(id => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+      "nft_info": {
+        "token_id": id,
+      }
+    })));
+    return nftTokenInfos;
   }
 
   async joinDao() {
@@ -121,7 +135,7 @@ export class BlockchainService {
     return joinDaoResult;
   }
 
-  async createNewGameRoom(nftId: string = '') {
+  async createNewGameRoom(nftId: string) {
     const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "create_new_game_room": {
         "nft_id": nftId,
@@ -138,7 +152,7 @@ export class BlockchainService {
     return createNewGameResult;
   }
 
-  async joinGame(gameId: number, nftId: string = '') {
+  async joinGame(gameId: number, nftId: string) {
     const joinGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "join_game": {
         "nft_id": nftId,
@@ -152,7 +166,7 @@ export class BlockchainService {
     return joinGameResult;
   }
 
-  getStreamGamesByStatus(status: "pending" | "started" | "re_roll"): Observable<any[]> {
+  getStreamGamesByStatus(status: GameStatus): Observable<any[]> {
     return from(this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "games_by_status": {
         "status": status
@@ -160,7 +174,7 @@ export class BlockchainService {
     }));
   }
 
-  async getGamesByStatus(status: "pending" | "started" | "re_roll") {
+  async getGamesByStatus(status: GameStatus) {
     const gamesResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "games_by_status": {
         "status": status
