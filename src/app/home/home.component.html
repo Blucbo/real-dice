@@ -39,7 +39,7 @@
               <td>{{game.total_stake.amount}}{{game.total_stake.denom}}</td>
               <td>
                 <button class="button is-primary is -light is-small"
-                  (click)="join(game.game_id, game.status)">Join</button>
+                  (click)="join(game.game_id, game.status, +game.base_bet.amount)">Join</button>
               </td>
             </tr>
           </tbody>

@@ -57,9 +57,9 @@ export class HomeComponent implements OnInit {
     await this.blockchainService.createNewGameRoom(this.chosenNft.value, baseBet !== NaN ? baseBet : 50);
   }
 
-  async join(gameId: number, gameStatus: GameStatus) {
+  async join(gameId: number, gameStatus: GameStatus, bet: number) {
     if (gameStatus === 'pending') {
-      await this.blockchainService.joinGame(gameId, this.chosenNft.value || null);
+      await this.blockchainService.joinGame(gameId, this.chosenNft.value || '', bet);
     }
     this.router.navigateByUrl('/game', { state: { gameId } });
   }

@@ -154,7 +154,7 @@ export class BlockchainService {
     return createNewGameResult;
   }
 
-  async joinGame(gameId: number, nftId: string) {
+  async joinGame(gameId: number, nftId: string, bet: number) {
     const joinGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "join_game": {
         "nft_id": nftId,
@@ -162,7 +162,7 @@ export class BlockchainService {
         "secret": Math.floor(Math.random() * 10000),
       }
     }, undefined, [{
-      amount: "500",
+      amount: (bet * 10).toString(),
       denom: "uscrt",
     }]);
     return joinGameResult;
@@ -220,14 +220,24 @@ export class BlockchainService {
       }
     });
     const game = parseGameFromBlockchainResult(reRolledResult);
-    return {
-      game,
-      rolls: [],
+    if (game.roll_turn === 'host') {
+      return {
+        rolls: game.joined_player_rolls[1],
+        game,
+      };
     }
+    if (game.roll_turn === 'joined') {
+      return {
+        rolls: game.host_player_rolls[1],
+        game,
+      };
+    }
+    return null;
   }
 }
 function parseGameFromBlockchainResult(rolledResult: ExecuteResult) {
-  const rolledDataByteArray = JSON.parse(rolledResult.logs[0].events[1].attributes[1].value.split('\n')[1]);
+  const gameResultResponse = rolledResult.logs[0].events[1].attributes[1].value.split('\n')[1] || rolledResult.logs[0].events[4].attributes[1].value.split('\n')[1];
+  const rolledDataByteArray = JSON.parse(gameResultResponse);
   const game = JSON.parse(String.fromCharCode(...rolledDataByteArray)) as Game;
   return game;
 }
