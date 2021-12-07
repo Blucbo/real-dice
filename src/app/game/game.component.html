@@ -3,18 +3,23 @@
   <button *ngIf="!(canThrow$ | async)" class="button">Wait</button>
 
   <div class="throws pl1">
-    <div class="score pl1">Player 1: {{(currentGame$ | async)?.host_player_total_points || 0}} points</div>
-    <span class="result-line">
-      <i class="las la-dice-one"></i>
-      <i class="las la-dice-two"></i>
-      <i class="las la-dice-three"></i>
-      <i class="las la-dice-four"></i>
-      <i class="las la-dice-five"></i>
-      <i class="las la-dice-six"></i>
-      = 10500
-    </span>
+    <div class="score pl1">Host: {{(currentGame$ | async)?.host_player_total_points || 0}} points</div>
+    <ng-container *ngFor="let rollStep of (currentGame$ | async)?.host_player_rolls; let i = index">
+      <span class="result-line">
+        <ng-container *ngFor="let roll of rollStep; let i = index">
+          <i class="las {{numberToImageMap[roll]}}"></i>
+        </ng-container>
+      </span>
+    </ng-container>
   </div>
   <div class="throws pl2">
-    <div class="score pl2">Player 2: {{(currentGame$ | async)?.joined_player_total_points || 0}} points</div>
+    <div class="score pl2">Joined: {{(currentGame$ | async)?.joined_player_total_points || 0}} points</div>
+    <ng-container *ngFor="let rollStep of (currentGame$ | async)?.joined_player_rolls; let i = index">
+      <span class="result-line">
+        <ng-container *ngFor="let roll of rollStep; let i = index">
+          <i class="las {{numberToImageMap[roll]}}"></i>
+        </ng-container>
+      </span>
+    </ng-container>
   </div>
 </div>

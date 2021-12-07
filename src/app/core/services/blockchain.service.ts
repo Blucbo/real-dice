@@ -196,7 +196,22 @@ export class BlockchainService {
         "game_id": gameId,
       }
     });
-
-    return rolledResult as any as number[];
+    const rolledDataByteArray = JSON.parse(rolledResult.logs[0].events[1].attributes[1].value.split('\n')[1]);
+    const game = JSON.parse(String.fromCharCode(...rolledDataByteArray)) as Game;
+    if (game.status === 're_roll' && game.roll_turn === 'host') {
+      return {
+        rolls: game.joined_player_rolls[0],
+        game,
+      };
+    }
+    if (game.status === 'started' && game.roll_turn === 'joined') {
+      return {
+        rolls: game.host_player_rolls[0],
+        game,
+      };
+    }
+    return null;
   }
+
+  async reRollDices(gameId: number) {}
 }

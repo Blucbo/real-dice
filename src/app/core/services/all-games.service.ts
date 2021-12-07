@@ -37,12 +37,12 @@ export class AllGamesService {
               from(this.blockchainService.getGamesByStatus('started')),
               from(this.blockchainService.getGamesByStatus('re_roll')),
             ]).pipe(
-              map(([pending, started, reRoll])=> [...pending, ...started, ...reRoll]),
+              map(([pending, started, reRoll]) => [...pending, ...started, ...reRoll]),
             );
           }),
         );
 
-        this.data$.subscribe(v => console.log('games: here ', v));
+    this.data$.subscribe(v => console.log('games: here ', v));
   }
 
   refresh() {
@@ -55,8 +55,12 @@ export class AllGamesService {
   }
 
   async roll(gameId: number) {
-    const result = this.blockchainService.rollDices(gameId);
-    // todo: update status game lo
-    return result;
+    const result = await this.blockchainService.rollDices(gameId);
+    if (result != null) {
+      const { rolls, game } = result;
+      this.currentGame$.next(game);
+      return rolls;
+    }
+    return [];
   }
 }

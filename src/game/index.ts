@@ -2,7 +2,7 @@ import * as Phaser from "phaser";
 
 import { Dice } from "./dice";
 
-const startXPos = window.innerWidth / 2 - 260;
+const startXPos = window.innerWidth / 2 - 210;
 const startYPos = window.innerHeight / 2 - 50;
 
 const onScenePreload = (scene: Phaser.Scene) => {
@@ -23,7 +23,6 @@ const onSceneCreate = (scene: Phaser.Scene) => {
     new Dice(scene, startXPos + 200, startYPos),
     new Dice(scene, startXPos + 300, startYPos),
     new Dice(scene, startXPos + 400, startYPos),
-    new Dice(scene, startXPos + 500, startYPos),
   ];
 
   dices.forEach(dice => scene.physics.add.collider(dice.sprite, platforms))
