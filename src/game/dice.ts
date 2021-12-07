@@ -5,17 +5,13 @@ const random = new Phaser.Math.RandomDataGenerator();
 export class Dice {
     sprite: Phaser.Physics.Arcade.Sprite;
 
-    constructor(scene: Phaser.Scene, x: number, y: number) {
+    constructor(scene: Phaser.Scene, x: number, y: number, onClick: Function) {
         this.sprite = scene.physics.add.sprite(x, y, "dice");
         this.sprite.setInteractive(new Phaser.Geom.Rectangle(0, 0, 96, 96), Phaser.Geom.Rectangle.Contains);
         this.sprite.setCollideWorldBounds(true);
-
-        this.sprite.on('pointerover', () => {
-            this.sprite.alpha = 0.5;
-        });
-
-        this.sprite.on('pointerout', () => {
-            this.sprite.alpha = 1;
+        this.sprite.on('pointerdown', () => {
+            onClick();
+            this.sprite.alpha = this.sprite.alpha === 1 ? 0.5 : 1;
         });
     }
 

@@ -25,6 +25,7 @@ export class GameComponent implements OnInit {
   }
 
   private gameId: any;
+  private rethrowArray = [false, false, false, false, false];
 
   constructor(
     private location: Location,
@@ -32,7 +33,7 @@ export class GameComponent implements OnInit {
     private gamesService: AllGamesService) { }
 
   ngOnInit() {
-    this.game = new FarkleGame();
+    this.game = new FarkleGame(this.click.bind(this));
     this.game.start("gameContainer");
     const { gameId } = this.location.getState() as any;
     this.gameId = gameId;
@@ -45,10 +46,17 @@ export class GameComponent implements OnInit {
     this.allGames.loadGame(this.gameId)
   }
 
-  async throwDices() {
-    const { gameId } = this.location.getState() as any;
-    const rollResult = await this.gamesService.roll(gameId as number);
-    this.game.throwDices(rollResult);
+  click(index: number) {
+    this.rethrowArray[index - 1] = !this.rethrowArray[index - 1];
+  }
 
+  async throwDices() {
+    const rollResult = await this.gamesService.roll(this.gameId);
+    this.game.throwDices(rollResult);
+  }
+
+  async reThrowDices() {
+    const rollResult = await this.gamesService.reRoll(this.gameId, this.rethrowArray);
+    this.game.throwDices(rollResult);
   }
 }

@@ -1,5 +1,6 @@
 <div id="gameContainer" class="background-home">
   <button *ngIf="canThrow$ | async" class="button" (click)="throwDices()">Throw dices</button>
+  <button *ngIf="canThrow$ | async" class="button rethrow" (click)="reThrowDices()">Rethrow dices</button>
   <button *ngIf="!(canThrow$ | async)" class="button">Wait</button>
   <button class="button refresh" (click)="refresh()">Refresh</button>
 

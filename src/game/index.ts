@@ -14,15 +14,15 @@ const onScenePreload = (scene: Phaser.Scene) => {
   scene.load.image('shelf', 'assets/images/shelf.jpeg');
 };
 
-const onSceneCreate = (scene: Phaser.Scene) => {
+const onSceneCreate = (scene: Phaser.Scene, onClick: Function) => {
   const platforms = scene.physics.add.staticGroup();
 
   const dices = [
-    new Dice(scene, startXPos, startYPos),
-    new Dice(scene, startXPos + 100, startYPos),
-    new Dice(scene, startXPos + 200, startYPos),
-    new Dice(scene, startXPos + 300, startYPos),
-    new Dice(scene, startXPos + 400, startYPos),
+    new Dice(scene, startXPos, startYPos, () => onClick(1)),
+    new Dice(scene, startXPos + 100, startYPos, () => onClick(2)),
+    new Dice(scene, startXPos + 200, startYPos, () => onClick(3)),
+    new Dice(scene, startXPos + 300, startYPos, () => onClick(4)),
+    new Dice(scene, startXPos + 400, startYPos, () => onClick(5)),
   ];
 
   dices.forEach(dice => scene.physics.add.collider(dice.sprite, platforms))
@@ -33,6 +33,9 @@ const onSceneCreate = (scene: Phaser.Scene) => {
 export class FarkleGame {
   scene!: Phaser.Scene;
   dices: Dice[] = [];
+
+
+  constructor(private onClick: Function) { }
 
   start(gameWindowId: string) {
     const that = this;
@@ -54,7 +57,7 @@ export class FarkleGame {
         },
         create: function () {
           that.scene = this;
-          that.dices.push(...onSceneCreate(this))
+          that.dices.push(...onSceneCreate(this, that.onClick))
         },
       },
       transparent: true,

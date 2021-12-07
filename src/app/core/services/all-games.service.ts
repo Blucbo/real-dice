@@ -63,4 +63,14 @@ export class AllGamesService {
     }
     return [];
   }
+
+  async reRoll(gameId: number, dices: boolean[]) {
+    const result = await this.blockchainService.reRollDices(gameId, dices);
+    if (result != null) {
+      const { rolls, game } = result;
+      this.currentGame$.next(game);
+      return rolls;
+    }
+    return [];
+  }
 }

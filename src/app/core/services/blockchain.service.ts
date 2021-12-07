@@ -1,7 +1,6 @@
-import { map } from 'rxjs/operators';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, from, Observable, of, Subject } from "rxjs";
-import { SigningCosmWasmClient } from "secretjs";
+import { BehaviorSubject, Observable } from "rxjs";
+import { ExecuteResult, SigningCosmWasmClient } from "secretjs";
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
 
@@ -123,7 +122,7 @@ export class BlockchainService {
         "token_id": id,
       }
     })));
-    const nftWithIds = nftIdTokens.map((id: string, i:number) => ({
+    const nftWithIds = nftIdTokens.map((id: string, i: number) => ({
       ...nftTokenInfos[i],
       id,
     }))
@@ -196,8 +195,8 @@ export class BlockchainService {
         "game_id": gameId,
       }
     });
-    const rolledDataByteArray = JSON.parse(rolledResult.logs[0].events[1].attributes[1].value.split('\n')[1]);
-    const game = JSON.parse(String.fromCharCode(...rolledDataByteArray)) as Game;
+    const game = parseGameFromBlockchainResult(rolledResult);
+
     if (game.status === 're_roll' && game.roll_turn === 'host') {
       return {
         rolls: game.joined_player_rolls[0],
@@ -213,5 +212,22 @@ export class BlockchainService {
     return null;
   }
 
-  async reRollDices(gameId: number) {}
+  async reRollDices(gameId: number, dices: boolean[]) {
+    const reRolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "re_roll": {
+        "game_id": gameId,
+        "dices": dices,
+      }
+    });
+    const game = parseGameFromBlockchainResult(reRolledResult);
+    return {
+      game,
+      rolls: [],
+    }
+  }
+}
+function parseGameFromBlockchainResult(rolledResult: ExecuteResult) {
+  const rolledDataByteArray = JSON.parse(rolledResult.logs[0].events[1].attributes[1].value.split('\n')[1]);
+  const game = JSON.parse(String.fromCharCode(...rolledDataByteArray)) as Game;
+  return game;
 }
