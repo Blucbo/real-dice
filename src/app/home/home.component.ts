@@ -40,7 +40,8 @@ export class HomeComponent implements OnInit {
   }
 
   async createNewGame() {
-    await this.blockchainService.createNewGameRoom('0');
+    const baseBet = +(prompt("Please enter base bet", "50") || "50");
+    await this.blockchainService.createNewGameRoom('0', baseBet !== NaN ? baseBet : 50);
   }
 
   async join(gameId: number, gameStatus: GameStatus) {

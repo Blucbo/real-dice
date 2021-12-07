@@ -99,14 +99,13 @@ export class BlockchainService {
     const account = await this._consmJsClient.getAccount(address);
     if (account != null) {
       try {
-        await this.joinDao();
-      } catch(err) {
-        this._account.next({
-          address: account.address,
-          balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
-        });
-        this.isConnected$.next(true);
-      }
+        // await this.joinDao();
+      } catch (err) { }
+      this._account.next({
+        address: account.address,
+        balance: account.balance.find(b => b.denom === 'uscrt')?.amount,
+      });
+      this.isConnected$.next(true);
     }
   }
 
@@ -136,18 +135,18 @@ export class BlockchainService {
     return joinDaoResult;
   }
 
-  async createNewGameRoom(nftId: string) {
+  async createNewGameRoom(nftId: string, baseBet: number) {
     const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "create_new_game_room": {
         "nft_id": nftId,
         "base_bet": {
-          amount: "50",
+          amount: baseBet.toString(),
           denom: "uscrt",
         },
         "secret":  Math.floor(Math.random() * 10000),
       }
     }, undefined, [{
-      amount: "500",
+      amount: (baseBet * 10).toString(),
       denom: "uscrt",
     }]);
     return createNewGameResult;

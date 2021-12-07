@@ -6,7 +6,7 @@ export const environment = {
   production: false,
   chainId: 'secretdev-1',
   rpc: 'http://3179-77-47-131-150.ngrok.io',
-  rest: 'https://3179-77-47-131-150.ngrok.io',
+  rest: 'http://3179-77-47-131-150.ngrok.io',
   daoContractAddress: 'secret18vd8fpwxzck93qlwghaj6arh4p7c5n8978vsyg',
   nftContractAddress: 'secret10pyejy66429refv3g35g2t7am0was7ya6hvrzf',
 };
