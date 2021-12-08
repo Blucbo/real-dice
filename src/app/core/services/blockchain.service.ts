@@ -63,6 +63,7 @@ export class BlockchainService {
 
   isConnected$ = new BehaviorSubject(false);
   public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
+  public readonly getAddess = () => this._account.value.address;
 
 
   async connectToWallet() {

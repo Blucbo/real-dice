@@ -5,6 +5,7 @@ import { FarkleGame } from 'src/game';
 import { Observable } from 'rxjs';
 import { AllGamesService } from '../core/services/all-games.service';
 import { Game } from '../core/models';
+import { BlockchainService } from '../core/services/blockchain.service';
 
 @Component({
   selector: 'app-game',
@@ -30,6 +31,7 @@ export class GameComponent implements OnInit {
   constructor(
     private location: Location,
     private allGames: AllGamesService,
+    private blockchainService: BlockchainService,
     private gamesService: AllGamesService) { }
 
   ngOnInit() {
@@ -42,10 +44,10 @@ export class GameComponent implements OnInit {
     }
     this.currentGame$.subscribe(game => {
       if (game != null) {
-        if (game.roll_turn == 'host') {
+        const address = this.blockchainService.getAddess();
+        if (address === game.host_player_address) {
           this.game.setDiceValues(game.host_player_rolls[0]);
-        }
-        if (game.roll_turn == 'joined') {
+        } else {
           this.game.setDiceValues(game.joined_player_rolls[0]);
         }
       }
