@@ -11,22 +11,22 @@
         <button class="button is-primary is-rounded is-small" (click)="createNewGame()">Create game</button>
       </div>
     </div>
+    <div class="column is-fullwidth">
+      <img src="assets/images/poker_joker_logo.png" style="height: 250px; width: auto" alt="Description">
+    </div>
     <div class="columns is-gapless">
       <div class="column">
       </div>
     </div>
     <div class="columns">
-      <div class="column is-half">
+      <div class="column is-two-thirds">
         <table class="table is-fullwidth">
           <thead>
-            <tr>
-              <th>Status</th>
-              <th>Id</th>
-              <th>Host address</th>
-              <th>Bet</th>
-              <th>
-                <button class="button is-primary is-rounded is-small" (click)="refresh()">Refresh</button>
-              </th>
+            <tr class="is-primary has-text-primary">
+              <th class="has-text-primary">Status</th>
+              <th class="has-text-primary">Id</th>
+              <th class="has-text-primary">Host address</th>
+              <th class="has-text-primary">Bet</th>
             </tr>
           </thead>
           <tbody>
@@ -43,37 +43,45 @@
           </tbody>
         </table>
       </div>
-      <div class="column is-half">
+      <div class="column is-one-third">
         <p class="title is-4">My NFTs Sets</p>
         <button class="button is-primary is-rounded is-small" *ngIf="((nfts$ | async)?.length || 0) === 0"
           (click)="joinDao()">Join Dao</button>
-        <div class="scrollable" style="overflow-x:hidden; height:80%" *ngIf="((nfts$ | async)?.length || 0) > 0">
+        <div class="scrollable" *ngIf="((nfts$ | async)?.length || 0) > 0">
           <ng-container *ngFor="let nft of nfts$ | async; let i = index">
             <div class="columns">
-              <div class="column  is-offset-3 is-6 card">
-                <p class="card-header-title" style="text-align: center; display: block;">
-                  <label class="radio">
-                    <input [formControl]="chosenNft" [value]="nft" type="radio" name="nft">
-                    Choose me
-                  </label>
-                </p>
+              <div class="column card">
+
+
                 <div class="card-content">
                   <div class="media">
-                    <div class="media-content" style="align-items: center; display: flex; flex-direction: row; justify-content: space-between;">
+                    <div class="media-left" style="align-items: center; display: flex; flex-direction: row; justify-content: space-between;">
                       <div class="dice-svg" [ngStyle]="{
                         'background-color': '#' + nft.nft_info.extension.attributes[0].value
                       }"></div>
-                      <div class="tags pl-2">
-                        <span class="tag is-primary is-light">
-                          Id: {{nft.id}}
-                        </span>
-                        <span class="tag is-primary is-light">
-                          Xp: {{nft.nft_info.extension.xp}}
-                        </span>
                     </div>
-                    </div>
+                    <div class="media-content">
+                      <div class="content">
+                        <p class="is-size-5 m-1 is-primary has-text-primary">
+                          XP level: {{nft.nft_info.extension.xp}}
+                        </p>
+                        <p class="is-size-5 m-1 is-link has-text-link">
+                          Max Base Bet: {{calc_max_bet(nft.nft_info.extension.xp)}} Scrt
+                        </p>
+                        <p class="is-size-5 m-1 is-link has-text-link">
+                          Token id: {{nft.id}}
+                        </p>
+                      </div>
+                      <p class="card-header-title" style="text-align: center; display: block;">
+                        <label class="button is-link is-outlined">
+                          <input [formControl]="chosenNft" [value]="nft" type="radio" name="nft">
+                          Choose
+                        </label>
+                      </p>
+                  </div>
                   </div>
                 </div>
+
               </div>
             </div>
 
