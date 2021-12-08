@@ -55,6 +55,7 @@ export class HomeComponent implements OnInit {
   async createNewGame() {
     const baseBet = +(prompt("Please enter base bet", "1") || "1");
     await this.blockchainService.createNewGameRoom(this.chosenNft.value, baseBet !== NaN ? baseBet : 50);
+    this.refresh();
   }
 
   async join(gameId: number, gameStatus: GameStatus, bet: number) {
@@ -66,5 +67,6 @@ export class HomeComponent implements OnInit {
 
   async joinDao() {
     await this.blockchainService.joinDao();
+    this.refreshNft();
   }
 }
