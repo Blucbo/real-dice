@@ -33,8 +33,8 @@
             ],
             "styles": [
               "node_modules/normalize.css/normalize.css",
-              "node_modules/bulma/css/bulma.css",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/my-styles.scss"
             ],
             "scripts": [
               "node_modules/phaser/dist/phaser.min.js"
