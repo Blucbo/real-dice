@@ -5,7 +5,7 @@
         <p class="title is-6">{{(account$ | async)?.address}}</p>
       </div>
       <div class="column is-4">
-        <p class="title is-6">Balance: {{(account$ | async)?.balance}}uscrt</p>
+        <p class="title is-6">Balance: {{(account$ | async)?.balance}}scrt</p>
       </div>
       <div class="column is-4">
         <button class="button is-primary is-rounded is-small" (click)="createNewGame()">Create game</button>
@@ -15,9 +15,9 @@
       <div class="column">
       </div>
     </div>
-    <div class="columns is-vcentered">
-      <div class="column is-5">
-        <table class="table">
+    <div class="columns">
+      <div class="column is-half">
+        <table class="table is-fullwidth">
           <thead>
             <tr>
               <th>Status</th>
@@ -43,11 +43,11 @@
           </tbody>
         </table>
       </div>
-      <div class="column is-6 is-offset-3">
-        <p class="title is-4">My dices</p>
+      <div class="column is-half">
+        <p class="title is-4">My NFTs Sets</p>
         <button class="button is-primary is-rounded is-small" *ngIf="((nfts$ | async)?.length || 0) === 0"
           (click)="joinDao()">Join Dao</button>
-        <div class="scrollable" *ngIf="((nfts$ | async)?.length || 0) > 0">
+        <div class="scrollable" style="overflow-x:hidden" *ngIf="((nfts$ | async)?.length || 0) > 0">
           <ng-container *ngFor="let nft of nfts$ | async; let i = index">
             <div class="columns">
               <div class="column  is-offset-3 is-6 card">
@@ -59,19 +59,18 @@
                 </p>
                 <div class="card-content">
                   <div class="media">
-                    <div class="media-content" style="align-items: center; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div class="media-content" style="align-items: center; display: flex; flex-direction: row; justify-content: space-between;">
                       <div class="dice-svg" [ngStyle]="{
-                        'background-color': '#' + nft.nft_info.extension.background_color
+                        'background-color': '#' + nft.nft_info.extension.attributes[0].value
                       }"></div>
-                      <span class="tag is-black">
-                        Id: {{nft.id}}
-                      </span>
-                      <span class="tag is-black">
-                        Name: {{nft.nft_info.extension.name}}
-                      </span>
-                      <span class="tag is-black">
-                        Exp: {{nft.nft_info.extension.xp}}xp
-                      </span>
+                      <div class="tags pl-2">
+                        <span class="tag is-primary is-light">
+                          Id: {{nft.id}}
+                        </span>
+                        <span class="tag is-primary is-light">
+                          Xp: {{nft.nft_info.extension.xp}}
+                        </span>
+                    </div>
                     </div>
                   </div>
                 </div>
