@@ -34,7 +34,6 @@ export class FarkleGame {
   scene!: Phaser.Scene;
   dices: Dice[] = [];
 
-
   constructor(private onClick: Function) { }
 
   start(gameWindowId: string) {
@@ -62,6 +61,12 @@ export class FarkleGame {
       },
       transparent: true,
     });
+  }
+
+  setDiceValues(values: number[]) {
+    for (let i = 0; i < values.length; i++) {
+      this.dices[i].sprite.setFrame(values[i] === 0 ? 0 : values[i] - 1);
+    }
   }
 
   throwDices(values: number[]) {

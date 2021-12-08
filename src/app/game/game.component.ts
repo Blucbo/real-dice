@@ -40,6 +40,16 @@ export class GameComponent implements OnInit {
     if (gameId != null) {
       this.refresh()
     }
+    this.currentGame$.subscribe(game => {
+      if (game != null) {
+        if (game.roll_turn == 'host') {
+          this.game.setDiceValues(game.host_player_rolls[0]);
+        }
+        if (game.roll_turn == 'joined') {
+          this.game.setDiceValues(game.joined_player_rolls[0]);
+        }
+      }
+    });
   }
 
   refresh() {
