@@ -1,3 +1,5 @@
+import { BaseBet } from './../core/models/index';
+import { map } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -35,7 +37,7 @@ export class HomeComponent implements OnInit {
       first()
     ).subscribe(([firstNft]) => {
       console.log('should call one time')
-      this.chosenNft.setValue(firstNft.id);
+      this.chosenNft.setValue(firstNft);
     })
 
   }
@@ -54,13 +56,19 @@ export class HomeComponent implements OnInit {
 
   async createNewGame() {
     const baseBet = +(prompt("Please enter base bet", "1") || "1");
-    await this.blockchainService.createNewGameRoom(this.chosenNft.value, baseBet !== NaN ? baseBet : 50);
+    const nft = this.chosenNft.value;
+    if (!this.isValidPointToBet(nft as NftWithID, baseBet)) {return};
+
+    await this.blockchainService.createNewGameRoom(this.chosenNft.value.id, baseBet !== NaN ? baseBet : 50);
     this.refresh();
   }
 
   async join(gameId: number, gameStatus: GameStatus, bet: number) {
+    const nft = this.chosenNft.value;
+    if (!this.isValidPointToBet(nft as NftWithID, bet)) {return};
+
     if (gameStatus === 'pending') {
-      await this.blockchainService.joinGame(gameId, this.chosenNft.value || '', bet);
+      await this.blockchainService.joinGame(gameId, this.chosenNft.value.id || '', bet);
     }
     this.router.navigateByUrl('/game', { state: { gameId } });
   }
@@ -68,5 +76,29 @@ export class HomeComponent implements OnInit {
   async joinDao() {
     await this.blockchainService.joinDao();
     this.refreshNft();
+  }
+
+  private isValidPointToBet(nft: NftWithID, baseBet: number) {
+    if (nft.nft_info.extension.xp < 10 && baseBet > 1) {
+      alert("You have not enought xp to bet " + baseBet);
+      return false;
+    }
+
+    if (nft.nft_info.extension.xp > 10 && nft.nft_info.extension.xp < 20 && baseBet > 2) {
+      alert("You have not enought xp to bet " + baseBet);
+      return false;
+    }
+
+    if (nft.nft_info.extension.xp > 20 && nft.nft_info.extension.xp < 40 && baseBet > 4) {
+      alert("You have not enought xp to bet " + baseBet);
+      return false;
+    }
+
+    if (nft.nft_info.extension.xp > 40 && baseBet > 8) {
+      alert("You have not enought xp to bet " + baseBet);
+      return false;
+    }
+
+    return true;
   }
 }
