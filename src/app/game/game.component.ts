@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 
 import { FarkleGame } from 'src/game';
-import { Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { AllGamesService } from '../core/services/all-games.service';
 import { Game } from '../core/models';
 import { BlockchainService } from '../core/services/blockchain.service';
+import { delay, filter, first, switchMap, withLatestFrom } from 'rxjs/operators';
 
 @Component({
   selector: 'app-game',
@@ -51,6 +52,29 @@ export class GameComponent implements OnInit {
           this.game.setDiceValues(game.joined_player_rolls[0]);
         }
       }
+    });
+    this.currentGame$.pipe(
+      filter(game => game.status === 'finished'),
+      first(),
+      delay(3000),
+      withLatestFrom(this.blockchainService.account$),
+      switchMap(([game, acc]) => {
+        const winnerRole =  game.joined_player_total_points > game.host_player_total_points ? "joined" : "host";
+        const winnerPoints =  game.joined_player_total_points > game.host_player_total_points ? game.joined_player_total_points : game.host_player_total_points;
+        confirm(`${winnerRole} win with score: ${winnerPoints}`)
+
+        if (game.host_player_address === acc.address && game.host_player_total_points > game.joined_player_total_points) {
+          return from(this.blockchainService.finishGame(this.gameId));
+        }
+
+        if (game.joined_player_address === acc.address && game.joined_player_total_points > game.host_player_total_points) {
+          return from(this.blockchainService.finishGame(this.gameId));
+        }
+
+        return of();
+      })
+    ).subscribe((v) => {
+      console.log('should be empty: ', v);
     });
   }
 

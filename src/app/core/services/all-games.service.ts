@@ -44,28 +44,6 @@ export class AllGamesService {
         );
 
     this.data$.subscribe(v => console.log('games: here ', v));
-    this.currentGame$.pipe(
-      filter(game => game.status === 'finished'),
-      delay(3000),
-      withLatestFrom(this.blockchainService.account$),
-      switchMap(([game, acc]) => {
-        const winnerRole =  game.joined_player_total_points > game.host_player_total_points ? "joined" : "host";
-        const winnerPoints =  game.joined_player_total_points > game.host_player_total_points ? game.joined_player_total_points : game.host_player_total_points;
-        confirm(`${winnerRole} win with score: ${winnerPoints}`)
-
-        if (game.host_player_address === acc.address && game.host_player_total_points > game.joined_player_total_points) {
-          return from(this.blockchainService.finishGame(game.game_id));
-        }
-
-        if (game.joined_player_address === acc.address && game.joined_player_total_points > game.host_player_total_points) {
-          return from(this.blockchainService.finishGame(game.game_id));
-        }
-
-        return of();
-      })
-    ).subscribe((v) => {
-      console.log('should be empty: ', v);
-    });
   }
 
   refresh() {
