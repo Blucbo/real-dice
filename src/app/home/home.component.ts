@@ -53,11 +53,11 @@ export class HomeComponent implements OnInit {
   }
 
   async createNewGame() {
-    const baseBet = +(prompt("Please enter base bet (uScrt)", "5000") || "5000");
+    const baseBet = +(prompt("Please enter base bet (uScrt)", "1000000") || "1000000");
     const nft = this.chosenNft.value;
     if (!this.isValidPointToBet(nft as NftWithID, baseBet)) {return};
 
-    await this.blockchainService.createNewGameRoom(this.chosenNft.value.id, baseBet !== NaN ? baseBet : 50);
+    await this.blockchainService.createNewGameRoom(this.chosenNft.value.id, baseBet !== NaN ? baseBet : 1000000);
     this.refresh();
   }
 
@@ -94,22 +94,22 @@ export class HomeComponent implements OnInit {
   }
 
   private isValidPointToBet(nft: NftWithID, baseBet: number) {
-    if (nft.nft_info.extension.xp < 10 && baseBet > 1 * 100000) {
+    if (nft.nft_info.extension.xp < 10 && baseBet > 1 * 1000000) {
       alert("You have not enought xp to bet " + baseBet);
       return false;
     }
 
-    if (nft.nft_info.extension.xp > 10 && nft.nft_info.extension.xp < 20 && baseBet > 2 * 100000) {
+    if (nft.nft_info.extension.xp > 10 && nft.nft_info.extension.xp < 20 && baseBet > 2 * 1000000) {
       alert("You have not enought xp to bet " + baseBet);
       return false;
     }
 
-    if (nft.nft_info.extension.xp > 20 && nft.nft_info.extension.xp < 40 && baseBet > 4 * 100000) {
+    if (nft.nft_info.extension.xp > 20 && nft.nft_info.extension.xp < 40 && baseBet > 4 * 1000000) {
       alert("You have not enought xp to bet " + baseBet);
       return false;
     }
 
-    if (nft.nft_info.extension.xp > 40 && baseBet > 8 * 100000) {
+    if (nft.nft_info.extension.xp > 40 && baseBet > 8 * 1000000) {
       alert("You have not enought xp to bet " + baseBet);
       return false;
     }
