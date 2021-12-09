@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, from, Observable } from "rxjs";
-import { filter, switchMap } from 'rxjs/operators';
+import { filter, share, shareReplay, switchMap } from 'rxjs/operators';
 import { NftWithID } from '../models';
 import { BlockchainService } from "./blockchain.service";
 
@@ -21,7 +21,7 @@ export class AllNftsService {
         switchMap(() => {
           return from(this.blockchainService.getNftTokens());
         }),
-
+        shareReplay({refCount: true, bufferSize: 1}),
       );
     this.data$.subscribe((v => console.log('v: ', v)));
   }
