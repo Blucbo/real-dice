@@ -14,7 +14,7 @@ const onScenePreload = (scene: Phaser.Scene) => {
   scene.load.image('shelf', 'assets/images/shelf.jpeg');
 };
 
-const onSceneCreate = (scene: Phaser.Scene, onClick: Function) => {
+const onSceneCreate = (scene: Phaser.Scene, onClick: Function, color: string) => {
   const platforms = scene.physics.add.staticGroup();
 
   const dices = [
@@ -25,7 +25,11 @@ const onSceneCreate = (scene: Phaser.Scene, onClick: Function) => {
     new Dice(scene, startXPos + 400, startYPos, () => onClick(5)),
   ];
 
-  dices.forEach(dice => scene.physics.add.collider(dice.sprite, platforms))
+  dices.forEach(dice => {
+    const hex = parseInt(color, 16);
+    dice.sprite.setTint(hex);
+    scene.physics.add.collider(dice.sprite, platforms)
+  })
 
   return dices;
 };
@@ -34,7 +38,7 @@ export class FarkleGame {
   scene!: Phaser.Scene;
   dices: Dice[] = [];
 
-  constructor(private onClick: Function) { }
+  constructor(private onClick: Function, private color = 'ffffff') { }
 
   start(gameWindowId: string) {
     const that = this;
@@ -56,7 +60,7 @@ export class FarkleGame {
         },
         create: function () {
           that.scene = this;
-          that.dices.push(...onSceneCreate(this, that.onClick))
+          that.dices.push(...onSceneCreate(this, that.onClick, that.color))
         },
       },
       transparent: true,
@@ -65,7 +69,7 @@ export class FarkleGame {
 
   setDiceValues(values: number[]) {
     for (let i = 0; i < values.length; i++) {
-      this.dices[i].sprite.setFrame(values[i] === 0 ? 0 : values[i] - 1);
+      this.dices[i]?.sprite.setFrame(values[i] === 0 ? 0 : values[i] - 1);
     }
   }
 

@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
 
@@ -17,6 +18,7 @@ export class GameComponent implements OnInit {
   game!: FarkleGame;
   public readonly currentGame$: Observable<Game> = this.allGames.currentGame$;
   public readonly canThrow$: Observable<boolean> = this.allGames.myTurn$;
+  public readonly canReThrow$: Observable<boolean> = this.allGames.myTurnReRoll$;
   public readonly numberToImageMap: { [key: number]: string } = {
     1: "la-dice-one",
     2: "la-dice-two",
@@ -25,6 +27,7 @@ export class GameComponent implements OnInit {
     5: "la-dice-five",
     6: "la-dice-six",
   }
+  public userColor = 'ffffff';
 
   private gameId: any;
   private rethrowArray = [false, false, false, false, false];
@@ -33,16 +36,21 @@ export class GameComponent implements OnInit {
     private location: Location,
     private allGames: AllGamesService,
     private blockchainService: BlockchainService,
-    private gamesService: AllGamesService) { }
+    private gamesService: AllGamesService,
+    private route: Router,
+  ) { }
 
   ngOnInit() {
-    this.game = new FarkleGame(this.click.bind(this));
-    this.game.start("gameContainer");
-    const { gameId } = this.location.getState() as any;
+    const { gameId, color } = this.location.getState() as any;
     this.gameId = gameId;
+    this.userColor = color;
     if (gameId != null) {
       this.refresh()
     }
+
+    this.game = new FarkleGame(this.click.bind(this), color);
+    this.game.start("gameContainer");
+
     this.currentGame$.subscribe(game => {
       if (game != null) {
         const address = this.blockchainService.getAddess();
@@ -75,6 +83,7 @@ export class GameComponent implements OnInit {
       })
     ).subscribe((v) => {
       console.log('should be empty: ', v);
+      this.route.navigate(['/home']);
     });
   }
 

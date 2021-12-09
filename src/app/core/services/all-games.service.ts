@@ -14,7 +14,17 @@ export class AllGamesService {
   public readonly myTurn$ = this.currentGame$.pipe(
     withLatestFrom(this.blockchainService.account$),
     map(([game, acc]) => {
-      return (
+      return game.status === 'started' && (
+        game.roll_turn === 'host' && game.host_player_address === acc.address
+        || game.roll_turn === 'joined' && game.joined_player_address === acc.address
+      );
+    })
+  );
+
+  public readonly myTurnReRoll$ = this.currentGame$.pipe(
+    withLatestFrom(this.blockchainService.account$),
+    map(([game, acc]) => {
+      return game.status === 're_roll' && (
         game.roll_turn === 'host' && game.host_player_address === acc.address
         || game.roll_turn === 'joined' && game.joined_player_address === acc.address
       );
