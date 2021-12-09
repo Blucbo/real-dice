@@ -119,7 +119,7 @@ export class BlockchainService {
             type: "query_permit",
             value: {
               permit_name: PermitName,
-              allowed_tokens: [environment.nftContractAddress],
+              allowed_tokens: [environment.nftContractAddress, environment.daoContractAddress],
               permissions: Permissions,
             },
           },
@@ -141,7 +141,7 @@ export class BlockchainService {
       this._permit = {
         params: {
           permit_name: PermitName,
-          allowed_tokens: [environment.nftContractAddress],
+          allowed_tokens: [environment.nftContractAddress, environment.daoContractAddress],
           chain_id: SecretNetworkConfig.chainId,
           permissions: Permissions,
         },
@@ -155,40 +155,24 @@ export class BlockchainService {
         balance: (+(account.balance.find(b => b.denom === 'uscrt')?.amount || 0) / 1000000).toString(),
       });
       this.isConnected$.next(true);
+    } else {
+      alert("You don't have enough balance")
     }
   }
 
-  private getPermitConfig(queryConfig: any) {
-    return {
-      with_permit: {
-        query: queryConfig,
-        permit: this._permit,
-      },
-    };
-  }
-
-  private async queryWithPermit(contractAddress: string, queryConfig: any) {
-    const queryResult = await this._consmJsClient.queryContractSmart(contractAddress, this.getPermitConfig(queryConfig));
-    return queryResult;
-  }
-
-  private async executeWithPermit(contractAddress: string, queryConfig: any, moneyTransferConfig: Coin[] = []) {
-    const executeResult = await this._consmJsClient.execute(contractAddress, this.getPermitConfig(queryConfig), undefined, moneyTransferConfig);
-    return executeResult;
-  }
-
   async getNftTokens(): Promise<NftWithID[]> {
-    const nftIdTokens = await this.queryWithPermit(environment.daoContractAddress, {
+    const nftIdTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "player_nfts": {
         "player": this._account.getValue().address,
         "viewer": environment.daoContractAddress,
+        "permit": this._permit,
       }
     });
-
-    const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this.queryWithPermit(environment.nftContractAddress, {
+    const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
       "nft_info": {
         "token_id": id,
       }
+
     })));
     const nftWithIds = nftIdTokens.map((id: string, i: number) => ({
       ...nftTokenInfos[i],
@@ -205,16 +189,17 @@ export class BlockchainService {
   }
 
   async finishGame(gameId: number) {
-    const finishResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const finishResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "end_game": {
-        "game_id": gameId
+        "game_id": gameId,
+        "permit": this._permit,
       }
     });
     return finishResult;
   }
 
   async createNewGameRoom(nftId: string, baseBet: number) {
-    const createNewGameResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "create_new_game_room": {
         "nft_id": nftId,
         "base_bet": {
@@ -222,8 +207,9 @@ export class BlockchainService {
           denom: "uscrt",
         },
         "secret": Math.floor(Math.random() * 10000),
+        "permit": this._permit,
       }
-    }, [{
+    }, undefined, [{
       amount: (baseBet * 10).toString(),
       denom: "uscrt",
     }]);
@@ -231,13 +217,14 @@ export class BlockchainService {
   }
 
   async joinGame(gameId: number, nftId: string, bet: number) {
-    const joinGameResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const joinGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "join_game": {
         "nft_id": nftId,
         "game_id": gameId,
         "secret": Math.floor(Math.random() * 10000),
+        "permit": this._permit,
       }
-    }, [{
+    }, undefined, [{
       amount: (bet * 10).toString(),
       denom: "uscrt",
     }]);
@@ -245,9 +232,10 @@ export class BlockchainService {
   }
 
   async getGamesByStatus(status: GameStatus) {
-    const gamesResult = await this.queryWithPermit(environment.daoContractAddress, {
+    const gamesResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "games_by_status": {
-        "status": status
+        "status": status,
+        "permit": this._permit,
       },
     });
     return (gamesResult as any[]).map(([gameId, value]) => ({
@@ -257,22 +245,23 @@ export class BlockchainService {
   }
 
   async getGameById(gameId: number) {
-    const gameResult = await this.queryWithPermit(environment.daoContractAddress, {
+    const gameResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "game": {
         "game_id": gameId,
+        "permit": this._permit,
       },
     });
     return gameResult as Game;
   }
 
   async rollDices(gameId: number) {
-    const rolledResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const rolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "roll": {
         "game_id": gameId,
+        "permit": this._permit,
       }
     });
     const game = parseGameFromBlockchainResult(rolledResult);
-
     if (game.status === 're_roll' && game.roll_turn === 'host') {
       return {
         rolls: game.joined_player_rolls[0],
@@ -289,10 +278,11 @@ export class BlockchainService {
   }
 
   async reRollDices(gameId: number, dices: boolean[]) {
-    const reRolledResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const reRolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "re_roll": {
         "game_id": gameId,
         "dices": dices,
+        "permit": this._permit,
       }
     });
     const game = parseGameFromBlockchainResult(reRolledResult);
