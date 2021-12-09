@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from "rxjs";
 import { ExecuteResult, SigningCosmWasmClient } from "secretjs";
+import { Coin } from 'secretjs/types/types';
 import { OfflineSigner } from 'secretjs/types/wallet';
 import { environment } from 'src/environments/environment';
 
@@ -51,6 +52,28 @@ const SecretNetworkConfig = {
   features: ['secretwasm'],
 }
 
+const customFees = {
+  upload: {
+    amount: [{ amount: "20000000", denom: "uscrt" }],
+    gas: "20000000",
+  },
+  init: {
+    amount: [{ amount: "5000000", denom: "uscrt" }],
+    gas: "5000000",
+  },
+  exec: {
+    amount: [{ amount: "500000", denom: "uscrt" }],
+    gas: "500000",
+  },
+  send: {
+    amount: [{ amount: "80000", denom: "uscrt" }],
+    gas: "80000",
+  },
+};
+
+const PermitName = "A cool Secret NFT game";
+const Permissions = ["owner"];
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,11 +83,11 @@ export class BlockchainService {
     address: "",
     balance: '0',
   });
+  private _permit: any;
 
   isConnected$ = new BehaviorSubject(false);
   public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
   public readonly getAddess = () => this._account.value.address;
-
 
   async connectToWallet() {
     const currentWindow = window as any;
@@ -85,20 +108,48 @@ export class BlockchainService {
       address,
       keplrOfflineSigner,
       currentWindow.getEnigmaUtils(SecretNetworkConfig.chainId),
-      {
-        init: {
-          amount: [{ amount: '300000', denom: 'uscrt' }],
-          gas: '300000',
-        },
-        exec: {
-          amount: [{ amount: '300000', denom: 'uscrt' }],
-          gas: '300000',
-        },
-      },
+      customFees,
     );
 
     const account = await this._consmJsClient.getAccount(address);
     if (account != null) {
+      const signature = await this._consmJsClient.signAdapter(
+        [
+          {
+            type: "query_permit",
+            value: {
+              permit_name: PermitName,
+              allowed_tokens: [environment.nftContractAddress],
+              permissions: Permissions,
+            },
+          },
+        ],
+        {
+          amount: [
+            {
+              denom: "uscrt",
+              amount: "0",
+            },
+          ],
+          gas: "1",
+        },
+        SecretNetworkConfig.chainId,
+        "",
+        0,
+        0
+      );
+      this._permit = {
+        params: {
+          permit_name: PermitName,
+          allowed_tokens: [environment.nftContractAddress],
+          chain_id: SecretNetworkConfig.chainId,
+          permissions: Permissions,
+        },
+        signature: {
+          pub_key: account?.pubkey,
+          signature: signature.signatures[0].signature,
+        },
+      };
       this._account.next({
         address: account.address,
         balance: (+(account.balance.find(b => b.denom === 'uscrt')?.amount || 0) / 1000000).toString(),
@@ -107,15 +158,34 @@ export class BlockchainService {
     }
   }
 
+  private async getPermitConfig(queryConfig: any) {
+    return {
+      with_permit: {
+        query: queryConfig,
+        permit: this._permit,
+      },
+    };
+  }
+
+  private async queryWithPermit(contractAddress: string, queryConfig: any) {
+    const queryResult = await this._consmJsClient.queryContractSmart(contractAddress, this.getPermitConfig(queryConfig));
+    return queryResult;
+  }
+
+  private async executeWithPermit(contractAddress: string, queryConfig: any, moneyTransferConfig: Coin[] = []) {
+    const executeResult = await this._consmJsClient.execute(contractAddress, this.getPermitConfig(queryConfig), undefined, moneyTransferConfig);
+    return executeResult;
+  }
+
   async getNftTokens(): Promise<NftWithID[]> {
-    const nftIdTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+    const nftIdTokens = await this.queryWithPermit(environment.daoContractAddress, {
       "player_nfts": {
         "player": this._account.getValue().address,
         "viewer": environment.daoContractAddress,
       }
     });
 
-    const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+    const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this.queryWithPermit(environment.nftContractAddress, {
       "nft_info": {
         "token_id": id,
       }
@@ -128,14 +198,14 @@ export class BlockchainService {
   }
 
   async joinDao() {
-    const joinDaoResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const joinDaoResult = await this.executeWithPermit(environment.daoContractAddress, {
       "join_dao": {}
     });
     return joinDaoResult;
   }
 
   async finishGame(gameId: number) {
-    const finishResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const finishResult = await this.executeWithPermit(environment.daoContractAddress, {
       "end_game": {
         "game_id": gameId
       }
@@ -144,7 +214,7 @@ export class BlockchainService {
   }
 
   async createNewGameRoom(nftId: string, baseBet: number) {
-    const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const createNewGameResult = await this.executeWithPermit(environment.daoContractAddress, {
       "create_new_game_room": {
         "nft_id": nftId,
         "base_bet": {
@@ -153,7 +223,7 @@ export class BlockchainService {
         },
         "secret": Math.floor(Math.random() * 10000),
       }
-    }, undefined, [{
+    }, [{
       amount: (baseBet * 10).toString(),
       denom: "uscrt",
     }]);
@@ -161,13 +231,13 @@ export class BlockchainService {
   }
 
   async joinGame(gameId: number, nftId: string, bet: number) {
-    const joinGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const joinGameResult = await this.executeWithPermit(environment.daoContractAddress, {
       "join_game": {
         "nft_id": nftId,
         "game_id": gameId,
         "secret": Math.floor(Math.random() * 10000),
       }
-    }, undefined, [{
+    }, [{
       amount: (bet * 10).toString(),
       denom: "uscrt",
     }]);
@@ -175,7 +245,7 @@ export class BlockchainService {
   }
 
   async getGamesByStatus(status: GameStatus) {
-    const gamesResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+    const gamesResult = await this.queryWithPermit(environment.daoContractAddress, {
       "games_by_status": {
         "status": status
       },
@@ -187,7 +257,7 @@ export class BlockchainService {
   }
 
   async getGameById(gameId: number) {
-    const gameResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
+    const gameResult = await this.queryWithPermit(environment.daoContractAddress, {
       "game": {
         "game_id": gameId,
       },
@@ -196,7 +266,7 @@ export class BlockchainService {
   }
 
   async rollDices(gameId: number) {
-    const rolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const rolledResult = await this.executeWithPermit(environment.daoContractAddress, {
       "roll": {
         "game_id": gameId,
       }
@@ -219,7 +289,7 @@ export class BlockchainService {
   }
 
   async reRollDices(gameId: number, dices: boolean[]) {
-    const reRolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+    const reRolledResult = await this.executeWithPermit(environment.daoContractAddress, {
       "re_roll": {
         "game_id": gameId,
         "dices": dices,
