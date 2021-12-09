@@ -3,9 +3,10 @@ export interface BlockchainAccount {
   balance?: string;
 }
 
-export type GameStatus = "pending" | "started" | "re_roll";
+export type GameStatus = "pending" | "started" | "re_roll" | "finished";
 
 export interface Game {
+  game_id: number;
   status: GameStatus;
   shielded: boolean;
   host_player_address: string;

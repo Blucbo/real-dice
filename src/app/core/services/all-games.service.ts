@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, forkJoin, from, Observable, Subject } from "rxjs";
+import { BehaviorSubject, combineLatest, forkJoin, from, Observable, of, Subject } from "rxjs";
 
 import { BlockchainService } from "./blockchain.service";
-import { filter, map, switchMap, withLatestFrom } from "rxjs/operators";
+import { delay, filter, map, switchMap, tap, withLatestFrom } from "rxjs/operators";
 import { Game } from '../models';
 
 @Injectable({
@@ -19,7 +19,7 @@ export class AllGamesService {
         || game.roll_turn === 'joined' && game.joined_player_address === acc.address
       );
     })
-  )
+  );
 
   data$: Observable<any>;
 
@@ -36,13 +36,36 @@ export class AllGamesService {
               from(this.blockchainService.getGamesByStatus('pending')),
               from(this.blockchainService.getGamesByStatus('started')),
               from(this.blockchainService.getGamesByStatus('re_roll')),
+              from(this.blockchainService.getGamesByStatus('finished')),
             ]).pipe(
-              map(([pending, started, reRoll]) => [...pending, ...started, ...reRoll]),
+              map(([pending, started, reRoll, finished]) => [...pending, ...started, ...reRoll, ...finished]),
             );
           }),
         );
 
     this.data$.subscribe(v => console.log('games: here ', v));
+    this.currentGame$.pipe(
+      filter(game => game.status === 'finished'),
+      delay(3000),
+      withLatestFrom(this.blockchainService.account$),
+      switchMap(([game, acc]) => {
+        const winnerRole =  game.joined_player_total_points > game.host_player_total_points ? "joined" : "host";
+        const winnerPoints =  game.joined_player_total_points > game.host_player_total_points ? game.joined_player_total_points : game.host_player_total_points;
+        confirm(`${winnerRole} win with score: ${winnerPoints}`)
+
+        if (game.host_player_address === acc.address && game.host_player_total_points > game.joined_player_total_points) {
+          return from(this.blockchainService.finishGame(game.game_id));
+        }
+
+        if (game.joined_player_address === acc.address && game.joined_player_total_points > game.host_player_total_points) {
+          return from(this.blockchainService.finishGame(game.game_id));
+        }
+
+        return of();
+      })
+    ).subscribe((v) => {
+      console.log('should be empty: ', v);
+    });
   }
 
   refresh() {

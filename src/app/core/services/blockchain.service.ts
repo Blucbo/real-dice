@@ -134,6 +134,15 @@ export class BlockchainService {
     return joinDaoResult;
   }
 
+  async finishGame(gameId: number) {
+    const finishResult = await this._consmJsClient.execute(environment.daoContractAddress, {
+      "end_game": {
+        "game_id": gameId
+      }
+    });
+    return finishResult;
+  }
+
   async createNewGameRoom(nftId: string, baseBet: number) {
     const createNewGameResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "create_new_game_room": {
