@@ -45,9 +45,9 @@
     </div>
     <div class="column is-4 has-text-right" style="position: relative;">
       <p class="title is-4" style="position: absolute; top: -30px">My NFTs Sets</p>
-      <button class="button is-primary is-rounded is-small" *ngIf="((nfts$ | async)?.length || 0) === 0"
+      <button class="button is-primary is-rounded is-small" *ngIf="!hasNft"
         (click)="joinDao()">Join Dao</button>
-      <div class="scrollable" *ngIf="((nfts$ | async)?.length || 0) > 0">
+      <div class="scrollable" *ngIf="hasNft">
         <ng-container *ngFor="let nft of nfts$ | async; let i = index">
           <div class="columns">
             <div class="column card">

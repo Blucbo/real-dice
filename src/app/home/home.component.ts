@@ -1,5 +1,5 @@
 import { BaseBet } from './../core/models/index';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -19,8 +19,11 @@ import { first } from 'rxjs/operators';
 export class HomeComponent implements OnInit {
   public account$: Observable<BlockchainAccount> = this.blockchainService.account$;
   public games$: Observable<any[]> = this.allGames.data$;
-  public nfts$: Observable<NftWithID[]> = this.allNfts.data$;
-
+  public nfts$: Observable<NftWithID[]> = this.allNfts.data$.pipe(
+    tap(nfts => {
+      this.hasNft = !!nfts.length
+  }));
+  public hasNft: boolean = false;
   public chosenNft = new FormControl();
 
   constructor(
