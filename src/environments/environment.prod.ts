@@ -3,6 +3,6 @@ export const environment = {
   chainId: 'pulsar-1',
   rpc: 'https://rpc.pulsar.stakeordie.com',
   rest: 'https://api.pulsar.stakeordie.com',
-  daoContractAddress: 'secret1j0meauyq3g73nqhxkt228j7uypxdtled59tym0',
-  nftContractAddress: 'secret1lx2w3z9ty420nv0pd24nlzeg6fthdv3wdtlrpk',
+  daoContractAddress: 'secret14twt4kmsqeyrsa8jjccev4tf0sexr3slm0l783',
+  nftContractAddress: 'secret1cfdgchprszwc3nwrlj5d7v6xduv0uxfqpgqpsc',
 };
