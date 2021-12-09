@@ -158,7 +158,7 @@ export class BlockchainService {
     }
   }
 
-  private async getPermitConfig(queryConfig: any) {
+  private getPermitConfig(queryConfig: any) {
     return {
       with_permit: {
         query: queryConfig,
