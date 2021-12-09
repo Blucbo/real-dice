@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit {
   }
 
   async createNewGame() {
-    const baseBet = +(prompt("Please enter base bet", "1") || "1");
+    const baseBet = +(prompt("Please enter base bet (uScrt)", "5000") || "5000");
     const nft = this.chosenNft.value;
     if (!this.isValidPointToBet(nft as NftWithID, baseBet)) {return};
 
@@ -74,6 +74,18 @@ export class HomeComponent implements OnInit {
   async joinDao() {
     await this.blockchainService.joinDao();
     this.refreshNft();
+  }
+
+  calc_max_bet(xp: number) {
+    if (xp < 10) {
+      return 1;
+    } else if (10 < xp && xp < 20) {
+      return 2;
+    } else if (20 < xp && xp < 40) {
+      return 4
+    } else {
+      return 8
+    }
   }
 
   private isValidPointToBet(nft: NftWithID, baseBet: number) {

@@ -4,7 +4,7 @@
       <div class="container">
         <div class="navbar-brand">
           <a class="navbar-item">
-            <i class="las la-dice" style="font-size: 50px;"></i>
+            <i class="las la-dice" style="font-size: 50px; color: #FF6161"></i>
           </a>
           <span class="navbar-burger burger" data-target="navbarMenu">
               <span></span>
@@ -16,7 +16,7 @@
           <div class="navbar-end">
             <div class="tabs is-right">
               <ul>
-                <li routerLinkActive="is-active"><a routerLink="/main">Welcome</a></li>
+                <li routerLinkActive="is-link"><a routerLink="/main">Welcome</a></li>
                 <ng-container
                   *ngIf="isConnected$ | async"
                 >
