@@ -1,6 +1,19 @@
+import { StdSignature } from 'secretjs/types/types';
+
 export interface BlockchainAccount {
   address: string;
   balance?: string;
+  permit? : Permit;
+}
+
+export interface Permit {
+        params: {
+          permit_name: string,
+          allowed_tokens: Array<string>,
+          chain_id: string,
+          permissions: Array<string>,
+        },
+        signature: StdSignature
 }
 
 export type GameStatus = "pending" | "started" | "re_roll" | "finished";

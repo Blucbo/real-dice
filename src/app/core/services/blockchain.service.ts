@@ -62,8 +62,8 @@ const customFees = {
     gas: "5000000",
   },
   exec: {
-    amount: [{ amount: "500000", denom: "uscrt" }],
-    gas: "500000",
+    amount: [{ amount: "800000", denom: "uscrt" }],
+    gas: "800000",
   },
   send: {
     amount: [{ amount: "80000", denom: "uscrt" }],
@@ -112,47 +112,53 @@ export class BlockchainService {
     );
 
     const account = await this._consmJsClient.getAccount(address);
+
+
     if (account != null) {
-      const signature = await this._consmJsClient.signAdapter(
-        [
+      const permitName = "Permit for PJ DAO";
+      const permissions = ["owner"];
+      const allowedTokens = [environment.nftContractAddress];
+      const fee = {
+        amount: [
+          {
+            denom: "uscrt",
+            amount: "0",
+          },
+        ],
+        gas: "1",
+      };
+
+      const signature = await keplrOfflineSigner.sign(
+        address, {
+        chain_id: SecretNetworkConfig.chainId,
+        account_number: "0",
+        sequence: "0",
+        fee: fee,
+        msgs: [
           {
             type: "query_permit",
             value: {
-              permit_name: PermitName,
-              allowed_tokens: [environment.nftContractAddress, environment.daoContractAddress],
-              permissions: Permissions,
+              permit_name: permitName,
+              allowed_tokens: allowedTokens,
+              permissions: permissions,
             },
           },
         ],
-        {
-          amount: [
-            {
-              denom: "uscrt",
-              amount: "0",
-            },
-          ],
-          gas: "1",
-        },
-        SecretNetworkConfig.chainId,
-        "",
-        0,
-        0
-      );
-      this._permit = {
-        params: {
-          permit_name: PermitName,
-          allowed_tokens: [environment.nftContractAddress, environment.daoContractAddress],
-          chain_id: SecretNetworkConfig.chainId,
-          permissions: Permissions,
-        },
-        signature: {
-          pub_key: account?.pubkey,
-          signature: signature.signatures[0].signature,
-        },
-      };
+        memo: ""
+      });
+
       this._account.next({
         address: account.address,
         balance: (+(account.balance.find(b => b.denom === 'uscrt')?.amount || 0) / 1000000).toString(),
+        permit: {
+          params: {
+            permit_name: permitName,
+            allowed_tokens: allowedTokens,
+            chain_id: SecretNetworkConfig.chainId,
+            permissions: permissions,
+          },
+          signature: signature.signature
+        },
       });
       this.isConnected$.next(true);
     } else {
@@ -161,13 +167,13 @@ export class BlockchainService {
   }
 
   async getNftTokens(): Promise<NftWithID[]> {
-    const nftIdTokens = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
-      "player_nfts": {
-        "player": this._account.getValue().address,
-        "viewer": environment.daoContractAddress,
-        "permit": this._permit,
+    const result = await this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
+      with_permit: {
+        query: { tokens: { owner: this._account.getValue().address, start_after: null, limit: null } },
+        permit: this._account.getValue().permit
       }
     });
+    const nftIdTokens = result.token_list.tokens;
     const nftTokenInfos: NftInfo[] = await Promise.all(nftIdTokens.map((id: string) => this._consmJsClient.queryContractSmart(environment.nftContractAddress, {
       "nft_info": {
         "token_id": id,
