@@ -7,9 +7,9 @@
             <i class="las la-dice" style="font-size: 50px; color: #FF6161"></i>
           </a>
           <span class="navbar-burger burger" data-target="navbarMenu">
-              <span></span>
-              <span></span>
-              <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
           </span>
         </div>
         <div id="navbarMenu" class="navbar-menu">
@@ -17,9 +17,7 @@
             <div class="tabs is-right">
               <ul>
                 <li routerLinkActive="is-link"><a routerLink="/main">Welcome</a></li>
-                <ng-container
-                  *ngIf="isConnected$ | async"
-                >
+                <ng-container *ngIf="isConnected$ | async">
                   <li routerLinkActive="is-active"><a routerLink="/game">Game</a></li>
                   <li routerLinkActive="is-active"><a routerLink="/home">Home</a></li>
                 </ng-container>
