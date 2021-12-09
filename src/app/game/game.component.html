@@ -2,7 +2,7 @@
   <div class="buttons-container">
     <button *ngIf="canThrow$ | async" class="button" (click)="throwDices()">Throw dices</button>
     <button *ngIf="canReThrow$ | async" class="button rethrow" (click)="reThrowDices()">Rethrow dices</button>
-    <button *ngIf="!(canThrow$ | async)" class="button">Wait</button>
+    <button *ngIf="!(canThrow$ | async) && !(canReThrow$ | async)" class="button">Wait</button>
     <button class="button refresh" (click)="refresh()"><i class="las la-redo-alt" style="font-size: 25px;"></i></button>
   </div>
 

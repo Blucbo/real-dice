@@ -78,6 +78,9 @@ export class GameComponent implements OnInit {
         if (game.joined_player_address === acc.address && game.joined_player_total_points > game.host_player_total_points) {
           return from(this.blockchainService.finishGame(this.gameId));
         }
+        if (game.joined_player_total_points === game.host_player_total_points) {
+          return from(this.blockchainService.finishGame(this.gameId));
+        }
 
         return of();
       })
