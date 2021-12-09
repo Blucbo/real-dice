@@ -83,7 +83,6 @@ export class BlockchainService {
     address: "",
     balance: '0',
   });
-  private _permit: any;
 
   isConnected$ = new BehaviorSubject(false);
   public readonly account$: Observable<BlockchainAccount> = this._account.asObservable();
@@ -115,8 +114,6 @@ export class BlockchainService {
 
 
     if (account != null) {
-      const permitName = "Permit for PJ DAO";
-      const permissions = ["owner"];
       const allowedTokens = [environment.nftContractAddress];
       const fee = {
         amount: [
@@ -138,9 +135,9 @@ export class BlockchainService {
           {
             type: "query_permit",
             value: {
-              permit_name: permitName,
+              permit_name: PermitName,
               allowed_tokens: allowedTokens,
-              permissions: permissions,
+              permissions: Permissions,
             },
           },
         ],
@@ -152,10 +149,10 @@ export class BlockchainService {
         balance: (+(account.balance.find(b => b.denom === 'uscrt')?.amount || 0) / 1000000).toString(),
         permit: {
           params: {
-            permit_name: permitName,
+            permit_name: PermitName,
             allowed_tokens: allowedTokens,
             chain_id: SecretNetworkConfig.chainId,
-            permissions: permissions,
+            permissions: Permissions,
           },
           signature: signature.signature
         },
@@ -198,7 +195,7 @@ export class BlockchainService {
     const finishResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "end_game": {
         "game_id": gameId,
-        "permit": this._permit,
+        permit: this._account.getValue().permit
       }
     });
     return finishResult;
@@ -213,7 +210,7 @@ export class BlockchainService {
           denom: "uscrt",
         },
         "secret": Math.floor(Math.random() * 10000),
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
       }
     }, undefined, [{
       amount: (baseBet * 10).toString(),
@@ -228,7 +225,7 @@ export class BlockchainService {
         "nft_id": nftId,
         "game_id": gameId,
         "secret": Math.floor(Math.random() * 10000),
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
       }
     }, undefined, [{
       amount: (bet * 10).toString(),
@@ -241,7 +238,7 @@ export class BlockchainService {
     const gamesResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "games_by_status": {
         "status": status,
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
       },
     });
     return (gamesResult as any[]).map(([gameId, value]) => ({
@@ -254,7 +251,8 @@ export class BlockchainService {
     const gameResult = await this._consmJsClient.queryContractSmart(environment.daoContractAddress, {
       "game": {
         "game_id": gameId,
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
+
       },
     });
     return gameResult as Game;
@@ -264,7 +262,7 @@ export class BlockchainService {
     const rolledResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "roll": {
         "game_id": gameId,
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
       }
     });
     const game = parseGameFromBlockchainResult(rolledResult);
@@ -288,7 +286,7 @@ export class BlockchainService {
       "re_roll": {
         "game_id": gameId,
         "dices": dices,
-        "permit": this._permit,
+        "permit": this._account.getValue().permit
       }
     });
     const game = parseGameFromBlockchainResult(reRolledResult);
