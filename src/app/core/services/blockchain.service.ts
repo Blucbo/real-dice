@@ -198,7 +198,7 @@ export class BlockchainService {
   }
 
   async joinDao() {
-    const joinDaoResult = await this.executeWithPermit(environment.daoContractAddress, {
+    const joinDaoResult = await this._consmJsClient.execute(environment.daoContractAddress, {
       "join_dao": {}
     });
     return joinDaoResult;
