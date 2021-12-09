@@ -68,7 +68,12 @@ export class HomeComponent implements OnInit {
     if (gameStatus === 'pending') {
       await this.blockchainService.joinGame(gameId, this.chosenNft.value.id || '', bet);
     }
-    this.router.navigateByUrl('/game', { state: { gameId } });
+    this.router.navigateByUrl('/game', {
+      state: {
+        gameId,
+        color: this.chosenNft.value.nft_info.extension.attributes[0].value,
+      }
+    });
   }
 
   async joinDao() {
