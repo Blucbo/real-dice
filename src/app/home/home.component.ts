@@ -87,9 +87,9 @@ export class HomeComponent implements OnInit {
   calc_max_bet(xp: number) {
     if (xp < 10) {
       return 1;
-    } else if (10 < xp && xp < 20) {
+    } else if (xp >= 10 && xp < 20) {
       return 2;
-    } else if (20 < xp && xp < 40) {
+    } else if (xp >=20 && xp < 40) {
       return 4
     } else {
       return 8
